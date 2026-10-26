@@ -95,4 +95,8 @@ src/main/java/com/bcphoenix/
 ├── model/        # Entités = tables de la base
 ├── dto/          # Objets reçus / renvoyés par l'API
 └── exception/    # Gestion centralisée des erreurs
+
+doc/
+├── schema.sql                          # Création de la base MySQL
+└── Guide API Spring Boot + MySQL.pdf   # Guide du projet
 ```
