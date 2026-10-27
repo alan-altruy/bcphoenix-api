@@ -17,7 +17,7 @@ public class Location {
     @Column(name = "city",  length = 100)
     private String city;
 
-    @Column(name = "address",  length = 255)
+    @Column(name = "address")
     private String address;
 
     public String getName() {
@@ -28,16 +28,9 @@ public class Location {
         this.name = name;
     }
 
-    public String getCity() {
-        return city;
-    }
 
     public void setCity(String city) {
         this.city = city;
-    }
-
-    public String getAddress() {
-        return address;
     }
 
     public void setAddress(String address) {
