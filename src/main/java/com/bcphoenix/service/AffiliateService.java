@@ -4,6 +4,7 @@ import com.bcphoenix.dto.AffiliateRequest;
 import com.bcphoenix.model.Affiliate;
 import com.bcphoenix.model.User;
 import com.bcphoenix.repository.AffiliateRepository;
+import com.bcphoenix.repository.GameRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,10 +15,12 @@ import java.util.List;
 public class AffiliateService {
     private final AffiliateRepository affiliateRepository;
     private final UserService userService;
+    private final GameRepository gameRepository;
 
-    public AffiliateService(AffiliateRepository affiliateRepository, UserService userService){
+    public AffiliateService(AffiliateRepository affiliateRepository, UserService userService, GameRepository gameRepository){
         this.affiliateRepository=affiliateRepository;
         this.userService = userService;
+        this.gameRepository = gameRepository;
     }
 
     public List<Affiliate> findAll(){
@@ -72,6 +75,9 @@ public class AffiliateService {
     }
     public void delete(Integer id){
         Affiliate affiliate = findById(id);
+        if(gameRepository.existsByAffiliateId(id)){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"Des parties sont attribuées à cet affilié");
+        }
         affiliateRepository.delete(affiliate);
     }
 

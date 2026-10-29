@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 public record EventRequest(
         @NotNull LocalDate eventDate,
-        @NotNull @Size(max = 20)EventType type,
+        @NotNull EventType eventType,
         @NotNull Integer locationId,
         @Size(max=255) String notes
         ) {

@@ -2,6 +2,7 @@ package com.bcphoenix.service;
 
 import com.bcphoenix.dto.LocationRequest;
 import com.bcphoenix.model.Location;
+import com.bcphoenix.repository.EventRepository;
 import com.bcphoenix.repository.LocationRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -12,9 +13,11 @@ import java.util.List;
 @Service
 public class LocationService {
     private final LocationRepository locationRepository;
+    private final EventRepository eventRepository;
 
-    public LocationService(LocationRepository locationRepository){
+    public LocationService(LocationRepository locationRepository, EventRepository eventRepository){
         this.locationRepository = locationRepository;
+        this.eventRepository = eventRepository;
     }
 
     public List<Location> findAll(){
@@ -49,6 +52,9 @@ public class LocationService {
     }
     public void delete(Integer id){
         Location location=findById(id);
+        if(eventRepository.existsByLocationId(id)){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"Ce lieu est utilisé par un évènement");
+        }
         locationRepository.delete(location);
     }
 }

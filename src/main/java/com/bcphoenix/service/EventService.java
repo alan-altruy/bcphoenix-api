@@ -4,6 +4,7 @@ import com.bcphoenix.dto.EventRequest;
 import com.bcphoenix.model.Event;
 import com.bcphoenix.model.Location;
 import com.bcphoenix.repository.EventRepository;
+import com.bcphoenix.repository.GameRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,10 +16,12 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final LocationService locationService;
+    private final GameRepository gameRepository;
 
-    public EventService (EventRepository eventRepository, LocationService locationService){
+    public EventService (EventRepository eventRepository, LocationService locationService, GameRepository gameRepository){
         this.eventRepository = eventRepository;
         this.locationService = locationService;
+        this.gameRepository = gameRepository;
     }
 
     public List<Event> findAll(){
@@ -31,7 +34,7 @@ public class EventService {
         Location location = locationService.findById(request.locationId());
         Event event = new Event();
         event.setEventDate(request.eventDate());
-        event.setEventType(request.type());
+        event.setEventType(request.eventType());
         event.setNotes(request.notes());
         event.setLocation(location);
         return eventRepository.save(event);
@@ -42,12 +45,16 @@ public class EventService {
         Location location = locationService.findById(request.locationId());
         event.setLocation(location);
         event.setNotes(request.notes());
-        event.setEventType(request.type());
+        event.setEventType(request.eventType());
         event.setEventDate(request.eventDate());
         return eventRepository.save(event);
     }
     public void delete(Integer id){
+
         Event event = findById(id);
+        if(gameRepository.existsByEventId(id)){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"Il y a des parties attribuées à cet évènement");
+        }
         eventRepository.delete(event);
     }
 }
