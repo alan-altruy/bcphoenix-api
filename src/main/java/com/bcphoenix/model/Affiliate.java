@@ -44,7 +44,7 @@ public class Affiliate {
     }
 
     public void setLastName(String lastName) {
-        this.lastName = lastName;
+        this.lastName = lastName.trim();
     }
 
     public String getFirstName() {
@@ -52,7 +52,7 @@ public class Affiliate {
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        this.firstName = firstName.trim();
     }
 
     public String getLicenseNumber() {
@@ -60,7 +60,7 @@ public class Affiliate {
     }
 
     public void setLicenseNumber(String licenseNumber) {
-        this.licenseNumber = licenseNumber;
+        this.licenseNumber = licenseNumber.trim();
     }
 
     public LocalDate getBirthDate() {
@@ -89,13 +89,14 @@ public class Affiliate {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Affiliate affiliate = (Affiliate) o;
-        return Objects.equals(id, affiliate.id);
+        Affiliate other = (Affiliate) o;
+        return id != null && id.equals(other.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return getClass().hashCode();
     }
 }

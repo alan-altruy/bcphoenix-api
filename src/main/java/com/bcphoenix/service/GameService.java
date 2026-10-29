@@ -31,7 +31,7 @@ public class GameService {
     }
     public Game create(GameRequest request){
         if(gameRepository.existsByAffiliateIdAndEventIdAndGameNumber(request.affiliateId(), request.eventId(), request.gameNumber())){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "La partie a déjà étée enregistré");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "La partie a déjà été enregistrée");
         }
         Affiliate affiliate = affiliateService.findById(request.affiliateId());
         if (!affiliate.isActive()){

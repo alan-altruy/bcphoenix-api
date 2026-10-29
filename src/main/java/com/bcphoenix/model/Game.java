@@ -18,7 +18,7 @@ public class Game {
     @Column(name = "score")
     private Integer score;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at",updatable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne(optional = false)
@@ -79,14 +79,15 @@ public class Game {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Game game = (Game) o;
-        return Objects.equals(id, game.id);
+        Game other = (Game) o;
+        return id != null && id.equals(other.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return getClass().hashCode();
     }
 
     public Game(){

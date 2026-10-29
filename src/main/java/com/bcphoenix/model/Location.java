@@ -25,9 +25,16 @@ public class Location {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name.trim();
     }
 
+    public String getCity() {
+        return city;
+    }
+
+    public String getAddress() {
+        return address;
+    }
 
     public void setCity(String city) {
         this.city = city;
@@ -47,14 +54,15 @@ public class Location {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Location location = (Location) o;
-        return Objects.equals(id, location.id);
+        Location other = (Location) o;
+        return id != null && id.equals(other.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return getClass().hashCode();
     }
     public Location(){
 
