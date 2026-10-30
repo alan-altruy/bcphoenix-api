@@ -1,6 +1,6 @@
 package com.bcphoenix.service;
 
-import com.bcphoenix.dto.LocationRequest;
+import com.bcphoenix.dto.request.LocationRequest;
 import com.bcphoenix.model.Location;
 import com.bcphoenix.repository.EventRepository;
 import com.bcphoenix.repository.LocationRepository;

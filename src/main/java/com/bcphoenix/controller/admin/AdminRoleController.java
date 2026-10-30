@@ -1,6 +1,6 @@
-package com.bcphoenix.controller;
+package com.bcphoenix.controller.admin;
 
-import com.bcphoenix.dto.RoleRequest;
+import com.bcphoenix.dto.request.RoleRequest;
 import com.bcphoenix.model.Role;
 import com.bcphoenix.service.RoleService;
 import jakarta.validation.Valid;
@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/roles")
-public class RoleController {
+@RequestMapping("/api/admin/roles")
+public class AdminRoleController {
     private final RoleService roleService;
 
-    public RoleController(RoleService roleService) {
+    public AdminRoleController(RoleService roleService) {
         this.roleService = roleService;
     }
 

@@ -1,4 +1,4 @@
-package com.bcphoenix.dto;
+package com.bcphoenix.dto.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

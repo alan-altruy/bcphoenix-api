@@ -1,6 +1,6 @@
 package com.bcphoenix.service;
 
-import com.bcphoenix.dto.EventRequest;
+import com.bcphoenix.dto.request.EventRequest;
 import com.bcphoenix.model.Event;
 import com.bcphoenix.model.Location;
 import com.bcphoenix.repository.EventRepository;

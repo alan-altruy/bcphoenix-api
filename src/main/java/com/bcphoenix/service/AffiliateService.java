@@ -1,6 +1,6 @@
 package com.bcphoenix.service;
 
-import com.bcphoenix.dto.AffiliateRequest;
+import com.bcphoenix.dto.request.AffiliateRequest;
 import com.bcphoenix.model.Affiliate;
 import com.bcphoenix.model.User;
 import com.bcphoenix.repository.AffiliateRepository;

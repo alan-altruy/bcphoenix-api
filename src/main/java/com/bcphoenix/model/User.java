@@ -14,6 +14,8 @@ public class User {
 
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
+    @Column(name = "email", length=100)
+    private String email;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "role_id")
@@ -45,6 +47,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = (email==null) ? null : email.trim();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.bcphoenix.service;
 
-import com.bcphoenix.dto.GameRequest;
+import com.bcphoenix.dto.request.GameRequest;
 import com.bcphoenix.model.Affiliate;
 import com.bcphoenix.model.Event;
 import com.bcphoenix.model.Game;

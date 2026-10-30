@@ -1,6 +1,6 @@
 package com.bcphoenix.service;
 
-import com.bcphoenix.dto.RoleRequest;
+import com.bcphoenix.dto.request.RoleRequest;
 import com.bcphoenix.model.Role;
 import com.bcphoenix.repository.RoleRepository;
 import com.bcphoenix.repository.UserRepository;

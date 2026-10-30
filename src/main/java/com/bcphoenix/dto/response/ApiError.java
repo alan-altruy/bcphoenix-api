@@ -1,4 +1,4 @@
-package com.bcphoenix.dto;
+package com.bcphoenix.dto.response;
 import java.util.Map;
 
 public record ApiError(

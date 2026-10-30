@@ -1,4 +1,4 @@
-package com.bcphoenix.dto;
+package com.bcphoenix.dto.request;
 
 import com.bcphoenix.model.EventType;
 import jakarta.validation.constraints.NotNull;

@@ -1,6 +1,6 @@
 package com.bcphoenix.exception;
 
-import com.bcphoenix.dto.ApiError;
+import com.bcphoenix.dto.response.ApiError;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

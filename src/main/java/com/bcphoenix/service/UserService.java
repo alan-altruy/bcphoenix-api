@@ -1,6 +1,6 @@
 package com.bcphoenix.service;
 
-import com.bcphoenix.dto.UserRequest;
+import com.bcphoenix.dto.request.UserRequest;
 import com.bcphoenix.model.Role;
 import com.bcphoenix.model.User;
 import com.bcphoenix.repository.UserRepository;
@@ -31,6 +31,7 @@ public class UserService {
         user.setLastName(request.lastName());
         user.setFirstName(request.firstName());
         user.setRole(role);
+        user.setEmail(request.email());
         return userRepository.save(user);
     }
 
@@ -44,6 +45,7 @@ public class UserService {
         user.setRole(role);
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
+        user.setEmail(request.email());
         return userRepository.save(user);
     }
     public void delete(Integer id){
