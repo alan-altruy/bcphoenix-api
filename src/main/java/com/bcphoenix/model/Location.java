@@ -2,7 +2,6 @@ package com.bcphoenix.model;
 
 import jakarta.persistence.*;
 
-import java.util.Objects;
 
 @Entity
 @Table(name = "locations")

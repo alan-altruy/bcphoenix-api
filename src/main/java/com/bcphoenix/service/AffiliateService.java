@@ -30,14 +30,15 @@ public class AffiliateService {
         return affiliateRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Affilié introuvable"));
     }
     public Affiliate create (AffiliateRequest request){
-        if(affiliateRepository.existsByLicenseNumberIgnoreCase(request.licenseNumber())){
-            throw new ResponseStatusException(HttpStatus.CONFLICT,"Le numéro de licence: "+request.licenseNumber()+" est déjà utilisé");
+        String licenseNumber = request.licenseNumber().trim();
+        if(affiliateRepository.existsByLicenseNumberIgnoreCase(licenseNumber)){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"Le numéro de licence: "+licenseNumber+" est déjà utilisé");
         }
         Affiliate affiliate = new Affiliate();
         affiliate.setActive(true);
         affiliate.setLastName(request.lastName());
         affiliate.setFirstName(request.firstName());
-        affiliate.setLicenseNumber(request.licenseNumber());
+        affiliate.setLicenseNumber(licenseNumber);
         affiliate.setBirthDate(request.birthDate());
         User user =null;
         if(request.userId()!=null){
@@ -52,8 +53,9 @@ public class AffiliateService {
     }
     public Affiliate update(Integer id, AffiliateRequest request){
         Affiliate affiliate = findById(id);
-        if(affiliateRepository.existsByLicenseNumberIgnoreCaseAndIdNot(request.licenseNumber(),id)){
-            throw new ResponseStatusException(HttpStatus.CONFLICT,"Le numéro de licence: "+request.licenseNumber()+" est déjà utilisé");
+        String licenseNumber = request.licenseNumber().trim();
+        if(affiliateRepository.existsByLicenseNumberIgnoreCaseAndIdNot(licenseNumber,id)){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"Le numéro de licence: "+licenseNumber+" est déjà utilisé");
         }
         User user =null;
         if(request.userId()!=null){
@@ -65,7 +67,7 @@ public class AffiliateService {
 
         affiliate.setUser(user);
         affiliate.setBirthDate(request.birthDate());
-        affiliate.setLicenseNumber(request.licenseNumber());
+        affiliate.setLicenseNumber(licenseNumber);
         affiliate.setFirstName(request.firstName());
         affiliate.setLastName(request.lastName());
         if (request.active() != null) {

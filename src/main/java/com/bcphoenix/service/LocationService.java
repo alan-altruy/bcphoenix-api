@@ -27,7 +27,7 @@ public class LocationService {
         return locationRepository.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Location introuvable"));
     }
     public Location create(LocationRequest request){
-        String name= request.name();
+        String name= request.name().trim();
         if(locationRepository.existsByNameIgnoreCase(name)){
             throw new ResponseStatusException(HttpStatus.CONFLICT,"La localisation: "+name+" existe déjà");
         }
@@ -39,7 +39,7 @@ public class LocationService {
     }
     public Location update(Integer id, LocationRequest request){
         Location location=findById(id);
-        String name= request.name();
+        String name= request.name().trim();
         if(locationRepository.existsByNameIgnoreCaseAndIdNot(name,id)){
             throw new ResponseStatusException(HttpStatus.CONFLICT,"La localisation: "+name+" existe déjà");
         }
