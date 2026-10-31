@@ -1,10 +1,12 @@
 package com.bcphoenix.service;
 
-import com.bcphoenix.dto.request.UserRequest;
+import com.bcphoenix.dto.request.UserCreateRequest;
+import com.bcphoenix.dto.request.UserUpdateRequest;
 import com.bcphoenix.model.Role;
 import com.bcphoenix.model.User;
 import com.bcphoenix.repository.UserRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -14,17 +16,19 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final RoleService roleService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, RoleService roleService) {
+    public UserService(UserRepository userRepository, RoleService roleService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleService = roleService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<User> findAll() {
         return userRepository.findAll();
     }
 
-    public User create(UserRequest request) {
+    public User create(UserCreateRequest request) {
 
         if(userRepository.existsByEmailIgnoreCase(request.email())){
             throw new ResponseStatusException(HttpStatus.CONFLICT,"L'adresse email: "+request.email()+" est déjà utilisée");
@@ -36,6 +40,7 @@ public class UserService {
         user.setFirstName(request.firstName());
         user.setRole(role);
         user.setEmail(request.email());
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
         return userRepository.save(user);
     }
 
@@ -43,7 +48,7 @@ public class UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
     }
-    public User update(Integer id, UserRequest request){
+    public User update(Integer id, UserUpdateRequest request){
         User user=findById(id);
         if(userRepository.existsByEmailIgnoreCaseAndIdNot(request.email(), id)){
             throw new ResponseStatusException(HttpStatus.CONFLICT,"L'adresse email: "+request.email()+" est déjà utilisée");

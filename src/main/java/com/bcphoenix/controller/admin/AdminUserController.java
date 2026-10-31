@@ -1,6 +1,7 @@
 package com.bcphoenix.controller.admin;
 
-import com.bcphoenix.dto.request.UserRequest;
+import com.bcphoenix.dto.request.UserCreateRequest;
+import com.bcphoenix.dto.request.UserUpdateRequest;
 import com.bcphoenix.dto.response.admin.AdminUserResponse;
 import com.bcphoenix.model.User;
 import com.bcphoenix.service.UserService;
@@ -32,12 +33,12 @@ public class AdminUserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AdminUserResponse create(@Valid @RequestBody UserRequest request) {
+    public AdminUserResponse create(@Valid @RequestBody UserCreateRequest request) {
         return AdminUserResponse.from(userService.create(request));
     }
 
     @PutMapping("/{id}")
-    public AdminUserResponse update(@PathVariable Integer id, @Valid @RequestBody UserRequest request){
+    public AdminUserResponse update(@PathVariable Integer id, @Valid @RequestBody UserUpdateRequest request){
         return AdminUserResponse.from(userService.update(id,request));
     }
 

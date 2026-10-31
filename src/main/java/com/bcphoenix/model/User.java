@@ -23,6 +23,10 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
+
+
     public Integer getId() {
         return id;
     }
@@ -57,6 +61,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = (email==null) ? null : email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     @Override
