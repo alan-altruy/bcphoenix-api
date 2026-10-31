@@ -15,6 +15,9 @@ import java.util.List;
 
 @Service
 public class UserService {
+
+    private static final String ADMIN_ROLE = "ADMIN";
+
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
@@ -55,6 +58,9 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.CONFLICT,"L'adresse email: "+request.email()+" est déjà utilisée");
         }
         Role role = roleService.findById(request.roleId());
+        if (!ADMIN_ROLE.equals(role.getName())) {
+            ensureNotLastAdmin(user);
+        }
         user.setRole(role);
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
@@ -63,6 +69,7 @@ public class UserService {
     }
     public void delete(Integer id){
         User user = findById(id);
+        ensureNotLastAdmin(user);
         userRepository.delete(user);
     }
     public User findByEmail(String email){
@@ -76,5 +83,12 @@ public class UserService {
         }
         user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
+    }
+    private void ensureNotLastAdmin(User user) {
+        boolean isAdmin = ADMIN_ROLE.equals(user.getRole().getName());
+        if (isAdmin && userRepository.countByRoleName(ADMIN_ROLE) <= 1) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Impossible : il doit rester au moins un administrateur");
+        }
     }
 }

@@ -14,6 +14,8 @@ import java.util.Locale;
 @Service
 public class RoleService {
 
+    private static final String ADMIN_ROLE = "ADMIN";
+
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
 
@@ -44,7 +46,9 @@ public class RoleService {
         if (roleRepository.existsByNameIgnoreCaseAndIdNot(name, id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Le rôle '" + name + "' existe déjà");
         }
-
+        if (ADMIN_ROLE.equals(role.getName()) && !ADMIN_ROLE.equals(name)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Le rôle ADMIN ne peut pas être renommé");
+        }
         role.setName(name);
         return roleRepository.save(role);
 
