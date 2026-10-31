@@ -1,5 +1,6 @@
 package com.bcphoenix.service;
 
+import com.bcphoenix.dto.request.PasswordChangeRequest;
 import com.bcphoenix.dto.request.UserCreateRequest;
 import com.bcphoenix.dto.request.UserUpdateRequest;
 import com.bcphoenix.model.Role;
@@ -63,5 +64,17 @@ public class UserService {
     public void delete(Integer id){
         User user = findById(id);
         userRepository.delete(user);
+    }
+    public User findByEmail(String email){
+        return userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Compte introuvable"));
+    }
+    public void changePassword(String email, PasswordChangeRequest request){
+        User user = findByEmail(email);
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mot de passe actuel incorrect");
+        }
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
     }
 }

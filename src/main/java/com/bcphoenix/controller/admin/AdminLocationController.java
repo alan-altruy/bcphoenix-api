@@ -19,17 +19,6 @@ public class AdminLocationController {
         this.locationService = locationService;
     }
 
-    @GetMapping
-    public List<LocationResponse> findAll() {
-        List<Location> locations = locationService.findAll();
-        return locations.stream().map(LocationResponse::from).toList();
-    }
-
-    @GetMapping("/{id}")
-    public LocationResponse findById(@PathVariable Integer id){
-        return LocationResponse.from(locationService.findById(id));
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public LocationResponse create(@Valid @RequestBody LocationRequest request){

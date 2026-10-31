@@ -19,8 +19,9 @@ public class SecurityConfig {
                                 "/api/games/**", "/api/locations/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers("/api/account/**").authenticated()
                         .anyRequest().denyAll())
-                .csrf(csrf -> csrf.spa()).csrf(csrf -> csrf.spa())
+                .csrf(csrf -> csrf.spa())
                 .formLogin(form -> form
                         .loginProcessingUrl("/api/auth/login")
                         .usernameParameter("email")

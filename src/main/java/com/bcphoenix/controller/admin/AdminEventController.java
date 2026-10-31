@@ -19,15 +19,7 @@ public class AdminEventController {
         this.eventService = eventService;
     }
 
-    @GetMapping
-    public List<EventResponse> findAll(){
-        List<Event> events = eventService.findAll();
-        return events.stream().map(EventResponse::from).toList();
-    }
-    @GetMapping("/{id}")
-    public EventResponse findById(@PathVariable Integer id){
-        return EventResponse.from(eventService.findById(id));
-    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventResponse create(@Valid @RequestBody EventRequest eventRequest){
