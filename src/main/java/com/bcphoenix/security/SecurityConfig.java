@@ -9,6 +9,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
+    private final SecurityErrorWriter errorWriter;
+
+    public SecurityConfig(SecurityErrorWriter errorWriter){
+        this.errorWriter = errorWriter;
+    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -27,12 +32,15 @@ public class SecurityConfig {
                         .usernameParameter("email")
                         .passwordParameter("password")
                         .successHandler((request, response, authentication) -> response.setStatus(204))
-                        .failureHandler((request, response, exception) -> response.setStatus(401)))
+                        .failureHandler((request, response, exception) -> errorWriter.write(response, 401, "Email ou mot de passe incorrect")))
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> response.setStatus(204)))
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint((request, response, exception) -> response.setStatus(401)));
+                        .authenticationEntryPoint((request, response, exception) ->
+                                errorWriter.write(response, 401, "Connexion requise"))
+                        .accessDeniedHandler((request, response, exception) ->
+                                errorWriter.write(response, 403, "Accès refusé")));
 
         return http.build();
     }
