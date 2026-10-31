@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_name  VARCHAR(100) NOT NULL,
     first_name VARCHAR(50)  NOT NULL,
     role_id    INT          NOT NULL,
-    email      VARCHAR(100),
+    email      VARCHAR(100) NOT NULL UNIQUE,
     CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles (id)
 );
 CREATE TABLE IF NOT EXISTS affiliates (

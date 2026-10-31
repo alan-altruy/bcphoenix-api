@@ -25,6 +25,10 @@ public class UserService {
     }
 
     public User create(UserRequest request) {
+
+        if(userRepository.existsByEmailIgnoreCase(request.email())){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"L'adresse email: "+request.email()+" est déjà utilisée");
+        }
         User user = new User();
         Role role = roleService.findById(request.roleId());
 
@@ -41,6 +45,9 @@ public class UserService {
     }
     public User update(Integer id, UserRequest request){
         User user=findById(id);
+        if(userRepository.existsByEmailIgnoreCaseAndIdNot(request.email(), id)){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"L'adresse email: "+request.email()+" est déjà utilisée");
+        }
         Role role = roleService.findById(request.roleId());
         user.setRole(role);
         user.setFirstName(request.firstName());

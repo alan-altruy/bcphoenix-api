@@ -2,6 +2,8 @@ package com.bcphoenix.model;
 
 import jakarta.persistence.*;
 
+import java.util.Locale;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -14,7 +16,7 @@ public class User {
 
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
-    @Column(name = "email", length=100)
+    @Column(name = "email", nullable = false,length=100)
     private String email;
 
     @ManyToOne(optional = false)
@@ -54,7 +56,7 @@ public class User {
     }
 
     public void setEmail(String email) {
-        this.email = (email==null) ? null : email.trim();
+        this.email = (email==null) ? null : email.trim().toLowerCase(Locale.ROOT);
     }
 
     @Override
