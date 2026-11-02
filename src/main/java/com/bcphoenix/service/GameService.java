@@ -3,12 +3,14 @@ package com.bcphoenix.service;
 import com.bcphoenix.dto.request.GameRequest;
 import com.bcphoenix.model.Affiliate;
 import com.bcphoenix.model.Event;
+import com.bcphoenix.model.EventType;
 import com.bcphoenix.model.Game;
 import com.bcphoenix.repository.GameRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -65,5 +67,20 @@ public class GameService {
     public void delete(Integer id){
         Game game = findById(id);
         gameRepository.delete(game);
+    }
+
+    public List<Game> findLastGamesByEventType(EventType eventType){
+        return gameRepository.findFirstByEvent_EventTypeOrderByEvent_EventDateDescEvent_IdDesc(eventType)
+                .map(game -> gameRepository.findByEventIdOrderByAffiliate_LastNameAscGameNumberAsc(game.getEvent().getId()))
+                .orElse(List.of());
+    }
+    public List<Game> findByEventId(Integer eventId){
+        eventService.findById(eventId);
+        return gameRepository.findByEventIdOrderByAffiliate_LastNameAscGameNumberAsc(eventId);
+    }
+    public List<Game> findByEventTypeAndDate(EventType eventType, LocalDate date){
+        return gameRepository.findFirstByEvent_EventTypeAndEvent_EventDateOrderByEvent_IdDesc(eventType, date)
+                .map(game -> gameRepository.findByEventIdOrderByAffiliate_LastNameAscGameNumberAsc(game.getEvent().getId()))
+                .orElse(List.of());
     }
 }
