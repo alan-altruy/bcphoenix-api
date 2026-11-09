@@ -1,0 +1,64 @@
+name: Release Build
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    name: Report on Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Environment
+        uses: ./.github/actions/setup-env
+        with:
+          java-version: '21'
+
+      - name: Build, Test & PMD
+        run: mvn clean test pmd:pmd[span_13](start_span)[span_13](end_span)
+
+      - name: Generate JavaDoc
+        run: mvn javadoc:javadoc[span_14](start_span)[span_14](end_span)
+
+      - name: Generate Jacoco report
+        run: mvn jacoco:report[span_15](start_span)[span_15](end_span)
+
+      - name: Zip PMD
+        run: |
+          cd target/reports/pmd
+          zip -r ../../../pmd.zip ./*[span_16](start_span)[span_16](end_span)
+
+      - name: Zip JavaDoc
+        run: |
+          cd target/reports/apidocs
+          zip -r ../../../apidocs.zip ./*[span_17](start_span)[span_17](end_span)
+
+      - name: Zip Jacoco
+        run: |
+          cd target/site/jacoco
+          zip -r ../../../jacoco.zip ./*[span_18](start_span)[span_18](end_span)
+      
+      - name: Zip surefire-reports
+        run: |
+          cd target/surefire-reports
+          zip -r ../../surefire-reports.zip ./*[span_19](start_span)[span_19](end_span)
+
+      - name: Upload artifacts to release
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b
+        with:
+          files: |
+            pmd.zip
+            apidocs.zip
+            jacoco.zip
+            surefire-reports.zip[span_20](start_span)[span_20](end_span)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}[span_21](start_span)[span_21](end_span)
+      
+      - name: Create JAR file
+        run: mvn clean package spring-boot:repackage[span_22](start_span)[span_22](end_span)
+
+      #TODO: Push the jar file on the VPS[span_23](start_span)[span_23](end_span)

@@ -1,0 +1,24 @@
+name: 'Setup and Build Maven'
+description: 'Configure Java, cache Maven et exécute mvn verify'
+inputs:
+  java-version:
+    description: 'Version de Java'
+    required: false
+    default: '21'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+    - name: Set up Java
+      uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a
+      with:
+        distribution: temurin
+        java-version: ${{ inputs.java-version }}
+        cache: maven
+
+    - name: Build and run tests
+      shell: bash
+      run: mvn -B verify --file pom.xml

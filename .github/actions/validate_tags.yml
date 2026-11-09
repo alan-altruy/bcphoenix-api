@@ -1,0 +1,15 @@
+name: Validate Release Tag
+on:
+  push:
+    tags:
+      - 'v*'   # ne valide que les tags qui commencent par v, ex: v1.0.0
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Build & Test on Tag
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      java-version: '21'
