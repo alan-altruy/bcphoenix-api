@@ -2,7 +2,7 @@ name: Validate Release Tag
 on:
   push:
     tags:
-      - 'v*'   # ne valide que les tags qui commencent par v, ex: v1.0.0
+      - 'v*'   # ne valide que les tags qui commencent par v, ex: v1.0.0[span_0](start_span)[span_0](end_span)
 
 permissions:
   contents: read
@@ -10,6 +10,12 @@ permissions:
 jobs:
   validate:
     name: Build & Test on Tag
-    uses: ./.github/workflows/reusable-build.yml
-    with:
-      java-version: '21'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Environment
+        uses: ./.github/actions/setup-env
+        with:
+          java-version: '21' # Uniformisé avec le reste du projet
+
+      - name: Build, Test & PMD
+        run: mvn clean test
