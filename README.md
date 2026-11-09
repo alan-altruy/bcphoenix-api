@@ -1,3 +1,49 @@
+<!-- <table>
+<tr>
+<td valign="center">
+
+<a href="https://sonarcloud.io/summary/new_code?id=jasonfouret_bcphoenix&branch=main" target="_blank">
+  <img src="https://sonarcloud.io/images/project_badges/sonarcloud-highlight.svg" height="75">
+</a>
+
+</td>
+<td vlign="center">
+
+<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=alert_status">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=coverage">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=ncloc">
+<br>
+<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=sqale_rating">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=security_rating">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=reliability_rating">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=duplicated_lines_density">
+<br>
+
+<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=sqale_index">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=vulnerabilities">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=code_smells">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=bugs">
+
+</td>
+</tr>
+</table> -->
+
+<table>
+<tr>
+<td valign="top">
+
+<!-- Ligne 2 -->
+<img src="https://github.com/jasonfouret/bcphoenix/actions/workflows/build-and-test.yml/badge.svg" alt="Maven Build">
+<img src="https://github.com/jasonfouret/bcphoenix/actions/workflows/coverage-and-quality.yml/badge.svg" alt="PMD">
+<img src="https://github.com/jasonfouret/bcphoenix/actions/workflows/codeql.yml/badge.svg" alt="CodeQL">
+<img src="https://github.com/jasonfouret/bcphoenix/actions/workflows/scorecard.yml/badge.svg" alt="Scorecard">
+<img src="https://raw.githubusercontent.com/jasonfouret/bcphoenix/badges/jacoco.svg" alt="Coverage">
+<img src="https://raw.githubusercontent.com/jasonfouret/bcphoenix/badges/branches.svg" alt="Branches">
+
+</td>
+</tr>
+</table>
+
 # BC Phoenix API
 
 API REST en Java (Spring Boot) pour un club de bowling : affiliés, lieux, événements et scores, avec un accès public en lecture et un espace réservé aux administrateurs.
