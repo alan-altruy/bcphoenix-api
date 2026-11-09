@@ -2,7 +2,7 @@ name: Validate Release Tag
 on:
   push:
     tags:
-      - 'v*'   # ne valide que les tags qui commencent par v, ex: v1.0.0[span_0](start_span)[span_0](end_span)
+      - 'v*'
 
 permissions:
   contents: read
@@ -12,10 +12,11 @@ jobs:
     name: Build & Test on Tag
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Environment
-        uses: ./.github/actions/setup-env
-        with:
-          java-version: '21' # Uniformisé avec le reste du projet
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
-      - name: Build, Test & PMD
-        run: mvn clean test pmd:pmd
+      - name: Setup and Build
+        uses: ./.github/actions/setup-build
+        with:
+          java-version: '21'
+          maven-goal: 'clean test'

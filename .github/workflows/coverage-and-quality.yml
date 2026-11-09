@@ -24,11 +24,15 @@ jobs:
       MIN_COVERAGE: 0.85
 
     steps:
-      # Utilisation de l'action composite mutualisée (remplace checkout, setup-java et mvn verify)
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      # Utilisation de l'action composite mutualisée (Checkout déjà fait au-dessus)
       - name: Setup and Build
         uses: ./.github/actions/setup-build
         with:
           java-version: '21'
+          maven-goal: 'verify' # 'verify' lance les tests, package et génère les rapports JaCoCo nécessaires
 
       - name: Generate JaCoCo badges
         id: jacoco
