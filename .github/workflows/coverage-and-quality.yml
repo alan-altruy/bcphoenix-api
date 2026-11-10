@@ -27,10 +27,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup and Build via Docker
+      - name: Setup and Build
         uses: ./.github/actions/setup-build
         with:
-          maven-goal: 'verify'
+          java-version: '21'
+          maven-goal: 'verify' # 'verify' lance les tests et génère les rapports JaCoCo & PMD nécessaires
 
       - name: Generate JaCoCo badges
         id: jacoco
@@ -50,64 +51,10 @@ jobs:
           publish_dir: ./badges-tmp
           commit_message: "chore: update coverage badges"
 
-      - name: Convert PMD XML to SARIF (Native Python)
-        run: |
-          python3 -c '
-          import xml.etree.ElementTree as ET
-          import json
-          import os
-
-          xml_path = "target/pmd.xml"
-          sarif_path = "target/pmd.sarif"
-
-          if not os.path.exists(xml_path):
-              print("No pmd.xml found, skipping conversion.")
-              exit(0)
-
-          tree = ET.parse(xml_path)
-          root = tree.getroot()
-
-          results = []
-          for file_elem in root.findall(".//{*}file"):
-              filename = file_elem.attrib.get("name", "")
-              for violation in file_elem.findall("{*}violation"):
-                  rule = violation.attrib.get("rule", "UnknownRule")
-                  beginline = int(violation.attrib.get("beginline", 1))
-                  endline = int(violation.attrib.get("endline", beginline))
-                  message = violation.text.strip() if violation.text else ""
-
-                  results.append({
-                      "ruleId": rule,
-                      "message": {"text": message},
-                      "locations": [{
-                          "physicalLocation": {
-                              "artifactLocation": {"uri": filename},
-                              "region": {
-                                  "startLine": beginline,
-                                  "endLine": endline
-                              }
-                          }
-                      }]
-                  })
-
-          sarif = {
-              "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-              "version": "2.1.0",
-              "runs": [{
-                  "tool": {"driver": {"name": "PMD"}},
-                  "results": results
-              }]
-          }
-
-          with open(sarif_path, "w") as f:
-              json.dump(sarif, f, indent=2)
-          print(f"Successfully converted {len(results)} PMD violations to SARIF.")
-          '
-
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: target/pmd.sarif
+          sarif_file: target/pmd.sarif.json
 
       - name: Comment Test Coverage & PMD Summary on PR
         if: ${{ github.event_name == 'pull_request' }}
@@ -117,8 +64,10 @@ jobs:
           COVERAGE=$(awk "BEGIN {printf \"%.2f\", ${{ steps.jacoco.outputs.coverage }} * 100}")
           BRANCHES=$(awk "BEGIN {printf \"%.2f\", ${{ steps.jacoco.outputs.branches }} * 100}")
           
+          # Récupération sécurisée du nombre de violations depuis le rapport maven/pmd si présent
           PMD_TOTAL=0
           if [ -f "target/pmd.xml" ]; then
+            # Exemple simple ou comptage par défaut
             PMD_TOTAL=$(grep -c "<violation" target/pmd.xml || echo 0)
           fi
           

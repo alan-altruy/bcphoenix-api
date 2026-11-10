@@ -133,7 +133,7 @@
 				</executions>
 			</plugin>
 
-			<!-- Plugin PMD pour l'analyse statique du code -->
+						<!-- Plugin PMD pour l'analyse statique du code -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
@@ -143,7 +143,8 @@
 					<targetJdk>21</targetJdk>
 					<failOnViolation>false</failOnViolation>
 					<printFails>true</printFails>
-					<!-- Pas de format exotique, PMD génère son pmd.xml standard -->
+					<!-- Utilisation directe du renderer SARIF natif de PMD -->
+					<format>net.sourceforge.pmd.renderers.SarifRenderer</format>
 					<outputDirectory>${project.build.directory}</outputDirectory>
 				</configuration>
 				<executions>
@@ -155,6 +156,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 
 			<!-- Plugin JaCoCo pour la couverture de code -->
 			<plugin>
