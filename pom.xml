@@ -143,6 +143,9 @@
 					<targetJdk>21</targetJdk>
 					<failOnViolation>false</failOnViolation>
 					<printFails>true</printFails>
+					<!-- Génération native au format SARIF pour GitHub -->
+					<format>sarif</format>
+					<outputDirectory>${project.build.directory}</outputDirectory>
 				</configuration>
 				<executions>
 					<execution>
