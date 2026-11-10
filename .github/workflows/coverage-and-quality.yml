@@ -52,11 +52,6 @@ jobs:
           publish_dir: ./badges-tmp
           commit_message: "chore: update coverage badges"
 
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: target/pmd.sarif.json
-
       - name: Comment Test Coverage & PMD Summary on PR
         if: ${{ github.event_name == 'pull_request' }}
         run: |
