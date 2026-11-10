@@ -1,25 +1,16 @@
-name: 'Setup and Build Maven'
-description: 'Configure Java, cache Maven et exécute Maven'
+name: 'Setup and Build Docker'
+description: 'Lance le build et les tests via Docker Compose'
 inputs:
-  java-version:
-    description: 'Version de Java'
-    required: false
-    default: '21'
   maven-goal:
-    description: 'Objectif Maven a executer (ex: verify, clean test)'
+    description: 'Objectif Maven ou commande à exécuter'
     required: false
     default: 'verify'
 
 runs:
   using: 'composite'
   steps:
-    - name: Set up Java
-      uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a
-      with:
-        distribution: temurin
-        java-version: ${{ inputs.java-version }}
-        cache: maven
-
-    - name: Build and run tests
+    - name: Build and run tests via Docker
       shell: bash
-      run: mvn -B ${{ inputs.maven-goal }} --file pom.xml
+      run: |
+        # On s'assure de lancer la phase Maven demandée dans le conteneur de test dédié
+        docker compose -f docker-compose-unit-test.yaml run --rm test-runner ./mvnw clean ${{ inputs.maven-goal }}

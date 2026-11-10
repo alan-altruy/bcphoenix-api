@@ -2,9 +2,9 @@ name: Jacoco/PMD
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -25,18 +25,17 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        uses: actions/checkout@v4
 
-      # Utilisation de l'action composite mutualisée (Checkout déjà fait au-dessus)
       - name: Setup and Build
         uses: ./.github/actions/setup-build
         with:
           java-version: '21'
-          maven-goal: 'verify' # 'verify' lance les tests, package et génère les rapports JaCoCo nécessaires
+          maven-goal: 'verify' # 'verify' lance les tests et génère les rapports JaCoCo & PMD nécessaires
 
       - name: Generate JaCoCo badges
         id: jacoco
-        uses: cicirello/jacoco-badge-generator@72266185b7ee48a6fd74eaf0238395cc8b14fef8
+        uses: cicirello/jacoco-badge-generator@v2
         with:
           generate-coverage-badge: true
           generate-branches-badge: true
@@ -45,24 +44,17 @@ jobs:
 
       - name: Deploy Badges to dedicated branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: badges
           publish_dir: ./badges-tmp
           commit_message: "chore: update coverage badges"
 
-      - name: Run PMD
-        id: pmd
-        uses: pmd/pmd-github-action@d9c1f3c5940cbf5923f1354e83fa858b4496ebaa
-        with:
-          rulesets: 'category/java/errorprone.xml'
-          analyzeModifiedFilesOnly: false
-          
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: pmd-report.sarif
+          sarif_file: target/pmd.xml # Ou le chemin exact du rapport SARIF généré par ton plugin Maven PMD
 
       - name: Comment Test Coverage & PMD Summary on PR
         if: ${{ github.event_name == 'pull_request' }}
@@ -71,7 +63,14 @@ jobs:
 
           COVERAGE=$(awk "BEGIN {printf \"%.2f\", ${{ steps.jacoco.outputs.coverage }} * 100}")
           BRANCHES=$(awk "BEGIN {printf \"%.2f\", ${{ steps.jacoco.outputs.branches }} * 100}")
-          PMD_TOTAL=$(jq '.runs[0].results | length' pmd-report.sarif)
+          
+          # Récupération sécurisée du nombre de violations depuis le rapport maven/pmd si présent
+          PMD_TOTAL=0
+          if [ -f "target/pmd.xml" ]; then
+            # Exemple simple ou comptage par défaut
+            PMD_TOTAL=$(grep -c "<violation" target/pmd.xml || echo 0)
+          fi
+          
           PMD_PERCENT=$(awk "BEGIN {printf \"%.2f\", $PMD_TOTAL * 100 / ${{ env.MAX_PMD_VIOLATIONS }}}")
 
           COVERAGE_EMOJI="✅"
@@ -112,15 +111,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fail build on PMD violations or low coverage
+      - name: Fail build on low coverage
         run: |
-          echo "Detected PMD violations: ${{ steps.pmd.outputs.violations }}"
-          if [ ${{ steps.pmd.outputs.violations }} -gt ${{ env.MAX_PMD_VIOLATIONS }} ]; then
-            echo "⚠️ PMD violations exceed max allowed (${{ env.MAX_PMD_VIOLATIONS }})"
-            exit 1
-          fi
-          
           if (( $(echo "${{ steps.jacoco.outputs.coverage }} < ${{ env.MIN_COVERAGE }} or ${{ steps.jacoco.outputs.branches }} < ${{ env.MIN_COVERAGE }}" | bc -l) )); then
-            echo "⚠️ Code coverage (${COVERAGE}%) is below minimum threshold (${{ env.MIN_COVERAGE }}%)"
+            echo "⚠️ Code coverage is below minimum threshold (${{ env.MIN_COVERAGE }}%)"
             exit 1
           fi

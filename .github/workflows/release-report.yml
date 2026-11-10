@@ -1,4 +1,5 @@
 name: Release Build
+
 on:
   release:
     types: [published]
@@ -10,55 +11,54 @@ jobs:
   build:
     permissions:
       contents: write
-    name: Report on Release
+    name: Report and Package on Release
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Environment
-        uses: ./.github/actions/setup-env
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup and Build via Docker (Tests, PMD, JaCoCo)
+        uses: ./.github/actions/setup-build
         with:
-          java-version: '21'
+          maven-goal: 'verify'
 
-      - name: Build, Test & PMD
-        run: mvn clean test pmd:pmd[span_13](start_span)[span_13](end_span)
-
-      - name: Generate JavaDoc
-        run: mvn javadoc:javadoc[span_14](start_span)[span_14](end_span)
-
-      - name: Generate Jacoco report
-        run: mvn jacoco:report[span_15](start_span)[span_15](end_span)
-
-      - name: Zip PMD
+      - name: Generate JavaDoc via Docker
         run: |
-          cd target/reports/pmd
-          zip -r ../../../pmd.zip ./*[span_16](start_span)[span_16](end_span)
+          docker compose -f docker-compose-unit-test.yaml run --rm test-runner ./mvnw javadoc:javadoc
+
+      - name: Zip PMD Reports
+        run: |
+          cd target/site
+          zip -r ../../pmd.zip pmd.html pmd/ || true
 
       - name: Zip JavaDoc
         run: |
           cd target/reports/apidocs
-          zip -r ../../../apidocs.zip ./*[span_17](start_span)[span_17](end_span)
+          zip -r ../../../apidocs.zip ./* || true
 
-      - name: Zip Jacoco
+      - name: Zip Jacoco Report
         run: |
           cd target/site/jacoco
-          zip -r ../../../jacoco.zip ./*[span_18](start_span)[span_18](end_span)
+          zip -r ../../../jacoco.zip ./* || true
       
       - name: Zip surefire-reports
         run: |
           cd target/surefire-reports
-          zip -r ../../surefire-reports.zip ./*[span_19](start_span)[span_19](end_span)
+          zip -r ../../surefire-reports.zip ./* || true
 
       - name: Upload artifacts to release
-        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             pmd.zip
             apidocs.zip
             jacoco.zip
-            surefire-reports.zip[span_20](start_span)[span_20](end_span)
+            surefire-reports.zip
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}[span_21](start_span)[span_21](end_span)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Create JAR file
-        run: mvn clean package spring-boot:repackage[span_22](start_span)[span_22](end_span)
+      - name: Create Production JAR file via Docker
+        run: |
+          docker compose -f docker-compose-unit-test.yaml run --rm test-runner ./mvnw clean package spring-boot:repackage
 
-      #TODO: Push the jar file on the VPS[span_23](start_span)[span_23](end_span)
+      #TODO: Push the jar file on the VPS

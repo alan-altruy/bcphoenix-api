@@ -35,9 +35,6 @@ services:
     depends_on:
       mysql-test:
         condition: service_healthy # Attend que MySQL ait fini de démarrer
-    # Exécute Maven en pointant sur le conteneur mysql-test pour les tests unitaires
-    command: >
-      ./mvnw test verify
     networks:
       - app-net
 

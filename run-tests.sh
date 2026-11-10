@@ -8,7 +8,7 @@ echo "=========================================="
 chmod +x mvnw
 
 # Lance les tests et s'arrête avec le test-runner
-docker compose -f docker-compose-unit-test.yaml up --build test-runner
+docker compose -f docker-compose-unit-test.yaml up --build test-runner ./mvnw clean verify
 
 echo "=========================================="
 echo "  Nettoyage des conteneurs de test..."
