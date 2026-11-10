@@ -17,6 +17,7 @@ jobs:
       contents: write
       pull-requests: write
       security-events: write
+      actions: read
     env:
       MAX_PMD_VIOLATIONS: 5
       EXPECTED_PMD_VIOLATIONS: 0
