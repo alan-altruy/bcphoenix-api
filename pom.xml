@@ -143,8 +143,7 @@
 					<targetJdk>21</targetJdk>
 					<failOnViolation>false</failOnViolation>
 					<printFails>true</printFails>
-					<!-- Génération native au format SARIF pour GitHub -->
-					<format>sarif</format>
+					<!-- Pas de format exotique, PMD génère son pmd.xml standard -->
 					<outputDirectory>${project.build.directory}</outputDirectory>
 				</configuration>
 				<executions>
