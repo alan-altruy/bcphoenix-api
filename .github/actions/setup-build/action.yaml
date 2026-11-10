@@ -1,16 +1,35 @@
 name: 'Setup and Build Docker'
-description: 'Lance le build et les tests via Docker Compose'
+description: 'Génère le .env et lance le build/tests via Docker Compose'
 inputs:
   maven-goal:
     description: 'Objectif Maven ou commande à exécuter'
     required: false
     default: 'verify'
+  db-name:
+    description: 'Nom de la base de données'
+    required: false
+    default: 'bcphoenix_test'
+  db-username:
+    description: 'Utilisateur de la base de données'
+    required: false
+    default: 'root'
+  db-password:
+    description: 'Mot de passe de la base de données'
+    required: false
+    default: 'rootpassword'
 
 runs:
   using: 'composite'
   steps:
+    - name: Generate temporary .env file
+      shell: bash
+      run: |
+        echo "DB_NAME=${{ inputs.db-name }}" > .env
+        echo "DB_USERNAME=${{ inputs.db-username }}" >> .env
+        echo "DB_PASSWORD=${{ inputs.db-password }}" >> .env
+        echo "API_PORT=8080" >> .env
+
     - name: Build and run tests via Docker
       shell: bash
       run: |
-        # On s'assure de lancer la phase Maven demandée dans le conteneur de test dédié
         docker compose -f docker-compose-unit-test.yaml run --rm test-runner ./mvnw clean ${{ inputs.maven-goal }}
