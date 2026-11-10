@@ -8,7 +8,7 @@ inputs:
   db-name:
     description: 'Nom de la base de données'
     required: false
-    default: 'bcphoenix_test'
+    default: 'bcphoenix'
   db-username:
     description: 'Utilisateur de la base de données'
     required: false
