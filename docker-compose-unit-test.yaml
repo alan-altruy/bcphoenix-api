@@ -1,0 +1,50 @@
+services:
+  # --- 1. Base de données MySQL ---
+  mysql-test:
+    image: mysql:8.0
+    container_name: bcphoenix-mysql-test
+    environment:
+      MYSQL_DATABASE: "${DB_NAME}"
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_test_data:/var/lib/mysql
+      - ./doc/schema.sql:/docker-entrypoint-initdb.d/schema.sql # <-- Exécute le script au premier démarrage
+    networks:
+      - app-net
+    # Indispensable : attend que MySQL soit vraiment prêt à recevoir des requêtes
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # --- 2. Service Test-Runner (Exécute mvn test) ---
+  test-runner:
+    image: eclipse-temurin:21-jdk
+    container_name: bcphoenix-test-runner
+    working_dir: /app
+    volumes:
+      - .:/app # Monte tout ton projet dans le conteneur
+      - maven_cache:/root/.m2/repository
+    environment:
+      - DB_URL=jdbc:mysql://mysql-test:3306/${DB_NAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      mysql-test:
+        condition: service_healthy # Attend que MySQL ait fini de démarrer
+    # Exécute Maven en pointant sur le conteneur mysql-test pour les tests unitaires
+    command: >
+      ./mvnw test verify
+    networks:
+      - app-net
+
+volumes:
+  mysql_test_data:
+  maven_cache:
+
+networks:
+  app-net:
+    driver: bridge
