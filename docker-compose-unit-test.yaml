@@ -37,14 +37,14 @@ services:
         condition: service_healthy # Attend que MySQL ait fini de démarrer
     # Exécute Maven en pointant sur le conteneur mysql-test pour les tests unitaires
     command: >
-      ./mvnw test 
+      ./mvnw test verify
     networks:
       - app-net
 
 volumes:
   mysql_test_data:
   maven_cache:
-  
+
 networks:
   app-net:
     driver: bridge
