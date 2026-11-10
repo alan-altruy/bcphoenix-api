@@ -44,7 +44,7 @@ jobs:
           badges-directory: badges-tmp
 
       - name: Deploy Badges to dedicated branch
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
