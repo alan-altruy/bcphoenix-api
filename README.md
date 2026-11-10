@@ -2,7 +2,7 @@
 
 API REST en Java (Spring Boot) pour un club de bowling : affiliés, lieux, événements et scores, avec un accès public en lecture et un espace réservé aux administrateurs.
 
-> **État du projet :** V1 en cours de développement, pas encore mise en ligne.
+> **État du projet :** V1 en cours de développement, containerisée via Docker.
 
 ## Technologies
 
@@ -11,60 +11,31 @@ API REST en Java (Spring Boot) pour un club de bowling : affiliés, lieux, évé
 - Spring Security (session par cookie, mots de passe hachés avec BCrypt)
 - MySQL
 - Springdoc OpenAPI (Swagger UI)
-- Maven (via le wrapper `mvnw`, pas besoin d'installer Maven)
+- Docker & Docker Compose
 
 ## Prérequis
 
-- JDK 21
-- Un serveur MySQL qui tourne en local (port 3306 par défaut)
+- [Docker](https://www.docker.com/) et Docker Compose installés sur votre machine.
+- Aucun besoin d'installer Java, Maven ou MySQL en local.
 
-## Installation
+## Installation et Lancement avec Docker
 
 1. Cloner le projet :
-
-   ```bash
    git clone https://github.com/JasonFouret/bcphoenix.git
    cd bcphoenix
-   ```
 
-2. Créer la base et toutes les tables avec le script [doc/schema.sql](doc/schema.sql) :
+2. Créer un fichier `.env` à la racine du projet en y renseignant vos variables :
+   DB_NAME=bcphoenix
+   DB_USERNAME=root
+   DB_PASSWORD=votre_mot_de_passe_securise
+   API_PORT=8080
+   ADMIN_EMAIL=votre_email_admin
+   ADMIN_PASSWORD=votre_mot_de_passe_securise
 
-   ```bash
-   mysql -u root -p < doc/schema.sql
-   ```
+3. Lancer l'application complète (Base de données MySQL + API) :
+   docker compose up --build
 
-3. Donner les identifiants MySQL via des variables d'environnement
-   (ils ne sont **pas** écrits dans le code, pour ne pas les publier sur GitHub) :
-
-   | Variable      | Rôle                    | Valeur par défaut                          |
-   |---------------|-------------------------|--------------------------------------------|
-   | `DB_URL`      | URL JDBC de la base     | `jdbc:mysql://localhost:3306/bcphoenix`    |
-   | `DB_USERNAME` | Utilisateur MySQL       | `root`                                     |
-   | `DB_PASSWORD` | Mot de passe MySQL      | *(vide)*                                   |
-
-   Sous Windows (PowerShell) :
-
-   ```powershell
-   $env:DB_PASSWORD = "ton_mot_de_passe"
-   ```
-
-   Dans IntelliJ : *Run > Edit Configurations > Environment variables*.
-
-4. Créer le premier administrateur. `doc/schema.sql` ne crée aucun compte ni aucun rôle :
-   - ajouter un rôle nommé exactement `ADMIN` dans la table `roles` ;
-   - ajouter un utilisateur lié à ce rôle dans `users`, avec son email en minuscules et un hash BCrypt dans `password_hash`.
-
-   Ne jamais mettre de mot de passe ou de hash dans le dépôt.
-
-## Lancer l'application
-
-```bash
-./mvnw spring-boot:run
-```
-
-Sous Windows : `mvnw.cmd spring-boot:run`
-
-L'API démarre sur http://localhost:8080.
+L'API démarre sur http://localhost:8080 et initialise automatiquement la base de données ainsi que le compte administrateur.
 
 ## Connexion
 
@@ -88,8 +59,6 @@ Les requêtes `POST`, `PUT` et `DELETE` sont protégées contre le CSRF : le cli
 
 Une fois l'application lancée, la documentation interactive (Swagger UI) est disponible ici :
 http://localhost:8080/swagger-ui.html
-
-Swagger envoie automatiquement le jeton CSRF. Il reste ouvert pour le développement et devra être désactivé en production.
 
 ### Routes publiques
 
@@ -150,24 +119,19 @@ Réservées au rôle `ADMIN`.
 
 ## Tests
 
-```bash
-./mvnw test
-```
+Pour lancer les tests unitaires et d'intégration dans l'environnement conteneurisé :
 
-> Le test actuel démarre toute l'application : il a besoin que MySQL soit lancé.
+./run-tests.sh
 
 ## Structure du projet
 
-```
 src/main/java/com/bcphoenix/
-├── config/         # Configuration générale (hachage des mots de passe)
+├── config/         # Configuration générale & Initialiseur d'admin)
 ├── controller/     # Points d'entrée HTTP (les URLs de l'API)
 │   ├── account/    # Routes de la personne connectée
 │   ├── admin/      # Routes réservées aux administrateurs
 │   └── visitor/    # Routes publiques en lecture seule
 ├── dto/            # Objets reçus / renvoyés par l'API
-│   ├── request/    # Données reçues
-│   └── response/   # Données renvoyées (admin/, visitor/ ou communes)
 ├── exception/      # Gestion centralisée des erreurs
 ├── model/          # Entités = tables de la base
 ├── repository/     # Accès à la base de données (Spring Data JPA)
