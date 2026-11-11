@@ -31,9 +31,11 @@ jobs:
 
       - name: Setup and Build
         uses: ./.github/actions/setup-build
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           java-version: '21'
-          maven-goal: 'verify'
+          maven-goal: 'verify -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=jasonfouret_bcphoenix'
 
       - name: Generate JaCoCo badges
         id: jacoco
@@ -116,6 +118,7 @@ jobs:
             target/pmd.xml
           if-no-files-found: warn
           retention-days: 14
+      
 
       - name: Deploy Badges to dedicated branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
