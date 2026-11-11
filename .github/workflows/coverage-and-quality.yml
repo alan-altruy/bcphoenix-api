@@ -3,9 +3,10 @@ name: Code Quality & Coverage
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    types: [opened, synchronize, reopened]
+    branches: [master]
 
 permissions:
   contents: read
@@ -40,7 +41,7 @@ jobs:
           maven-goal: >-
             verify -B
             org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
-            -Dsonar.projectKey=PokaChoc_bcphoenix
+            -Dsonar.projectKey=PokaChoc_bcphoenix-api
             -Dsonar.organization=pokachoc
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
