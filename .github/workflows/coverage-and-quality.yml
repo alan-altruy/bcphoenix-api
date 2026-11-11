@@ -72,9 +72,9 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/bphoenix?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-          SPRING_DATASOURCE_USERNAME: root
-          SPRING_DATASOURCE_PASSWORD: rootpassword
+          DATABASE_URL: jdbc:mysql://127.0.0.1:3306/bphoenix?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+          DB_USERNAME: root
+          DB_PASSWORD: rootpassword
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=PokaChoc_bcphoenix-api
 
       - name: Generate JaCoCo badges
