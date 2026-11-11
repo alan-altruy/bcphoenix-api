@@ -1,0 +1,140 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: bcphoenix
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -prootpassword"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: zulu
+          java-version: '21'
+          cache: maven
+
+      - name: Import database schema
+        run: |
+          mysql -h 127.0.0.1 -P 3306 \
+            -u root -prootpassword bcphoenix \
+            < doc/schema.sql
+
+      - name: Build, test and analyze
+        id: build
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          DATABASE_URL: jdbc:mysql://127.0.0.1:3306/bcphoenix
+          DB_USERNAME: root
+          DB_PASSWORD: rootpassword
+        run: |
+          ./mvnw -B verify \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=PokaChoc_bcphoenix-api \
+            -Dsonar.organization=pokachoc
+
+      # Extraction des résultats, même si Maven échoue.
+      - name: Extract quality metrics
+        if: always()
+        run: |
+          python3 <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          result = {
+              "coverage_available": False,
+              "coverage": 0,
+              "branches": 0,
+              "pmd_available": False,
+              "pmd_total": 0
+          }
+
+          # JaCoCo
+          jacoco = Path("target/site/jacoco/jacoco.xml")
+
+          if jacoco.exists():
+              root = ET.parse(jacoco).getroot()
+              counters = {
+                  counter.attrib["type"]: counter.attrib
+                  for counter in root.findall("counter")
+              }
+
+              instruction = counters.get("INSTRUCTION")
+              branch = counters.get("BRANCH")
+
+              if instruction:
+                  missed = int(instruction["missed"])
+                  covered = int(instruction["covered"])
+                  total = missed + covered
+
+                  result["coverage"] = covered / total if total else 0
+                  result["coverage_available"] = True
+
+              if branch:
+                  missed = int(branch["missed"])
+                  covered = int(branch["covered"])
+                  total = missed + covered
+
+                  result["branches"] = covered / total if total else 0
+
+          # PMD
+          pmd = Path("target/pmd.xml")
+
+          if pmd.exists():
+              root = ET.parse(pmd).getroot()
+              result["pmd_total"] = sum(
+                  1 for element in root.iter()
+                  if element.tag.split("}")[-1] == "violation"
+              )
+              result["pmd_available"] = True
+
+          Path("quality-results.json").write_text(
+              json.dumps(result, indent=2)
+          )
+
+          print(json.dumps(result, indent=2))
+          PY
+
+      - name: Upload quality results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-results
+          path: quality-results.json
+          if-no-files-found: error
+          retention-days: 1
+
+  quality-check:
+    needs: build
+    if: always()
+    uses: ./.github/workflows/quality-check.yml
+    with:
+      build_result: ${{ needs.build.result }}
+      min_coverage: 0.85
+      max_pmd_violations: 5
