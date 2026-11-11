@@ -8,17 +8,14 @@ on:
     types: [opened, synchronize, reopened]
     branches: [main]
 
-permissions:
-  contents: read
-
 jobs:
   coverage-quality:
     name: Build, Tests & Code Quality
     runs-on: ubuntu-latest
+
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
-      actions: read
 
     env:
       MAX_PMD_VIOLATIONS: 5
@@ -41,19 +38,24 @@ jobs:
           --health-retries=10
 
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      # --------------------------------------------------
+      # SETUP
+      # --------------------------------------------------
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      
+          fetch-depth: 0
+
       - name: Initialize database schema
         run: |
           mysql -h 127.0.0.1 -P 3306 -u root -prootpassword bcphoenix < doc/schema.sql
-      
+
       - name: Set up JDK 21
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           java-version: 21
-          distribution: 'zulu'
+          distribution: zulu
 
       - name: Cache SonarQube packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -69,16 +71,27 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build and analyze
+      # --------------------------------------------------
+      # BUILD & SONARCLOUD
+      # --------------------------------------------------
+
+      - name: Build, test and analyze
+        id: build
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           DATABASE_URL: jdbc:mysql://127.0.0.1:3306/bcphoenix
           DB_USERNAME: root
           DB_PASSWORD: rootpassword
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=PokaChoc_bcphoenix-api -Dsonar.organization=pokachoc
+        run: |
+          mvn -B verify \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=PokaChoc_bcphoenix-api \
+            -Dsonar.organization=pokachoc
 
-      # Récupération des rapports PMD déjà générés par verify
-      
+      # --------------------------------------------------
+      # PMD ANALYSIS
+      # --------------------------------------------------
+
       - name: Analyze PMD violations
         id: pmd
         if: always()
@@ -94,13 +107,16 @@ jobs:
               tree = ET.parse(report)
               root = tree.getroot()
 
-              # Gestion du namespace PMD
-              ns = {"pmd": "http://pmd.sourceforge.net/report/2.0.0"}
+              for file_node in root.iter():
+                  if file_node.tag.split("}")[-1] != "file":
+                      continue
 
-              for file in root.findall("pmd:file", ns):
-                  filename = file.get("name", "Unknown")
+                  filename = file_node.get("name", "Unknown")
 
-                  for violation in file.findall("pmd:violation", ns):
+                  for violation in file_node:
+                      if violation.tag.split("}")[-1] != "violation":
+                          continue
+
                       violations.append({
                           "file": filename,
                           "line": violation.get("beginline", "?"),
@@ -110,15 +126,19 @@ jobs:
                       })
 
           total = len(violations)
+          available = os.path.isfile(report)
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
               output.write(f"total={total}\n")
+              output.write(f"available={str(available).lower()}\n")
 
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
               summary.write("# PMD Code Quality Report\n\n")
               summary.write(f"**Total violations: {total}**\n\n")
 
-              if total == 0:
+              if not available:
+                  summary.write("⚠️ PMD report not available.\n")
+              elif total == 0:
                   summary.write("No PMD violations found. ✅\n")
               else:
                   summary.write("| File | Line | Rule | Priority | Description |\n")
@@ -137,74 +157,229 @@ jobs:
           print(f"PMD: {total} violations detected.")
           PY
 
+      # --------------------------------------------------
+      # JACOCO ANALYSIS
+      # --------------------------------------------------
 
-      # Publication des rapports HTML et XML
-      - name: Upload PMD reports
+      - name: Analyze Test Coverage
+        id: jacoco
+        if: always()
+        run: |
+          python3 <<'PY'
+          import xml.etree.ElementTree as ET
+          import os
+
+          report = "target/site/jacoco/jacoco.xml"
+
+          coverage = 0.0
+          branches = 0.0
+          available = os.path.isfile(report)
+
+          if available:
+              tree = ET.parse(report)
+              root = tree.getroot()
+
+              for counter in root.findall("counter"):
+                  covered = int(counter.get("covered", 0))
+                  missed = int(counter.get("missed", 0))
+                  total = covered + missed
+
+                  value = covered / total if total else 0.0
+
+                  if counter.get("type") == "INSTRUCTION":
+                      coverage = value
+
+                  elif counter.get("type") == "BRANCH":
+                      branches = value
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"coverage={coverage}\n")
+              output.write(f"branches={branches}\n")
+              output.write(f"coverage_percent={coverage * 100:.2f}\n")
+              output.write(f"branches_percent={branches * 100:.2f}\n")
+              output.write(f"available={str(available).lower()}\n")
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write("# Test Coverage Report\n\n")
+
+              if not available:
+                  summary.write("⚠️ JaCoCo report not available.\n")
+              else:
+                  summary.write(f"**Instruction Coverage:** {coverage * 100:.2f}%\n\n")
+                  summary.write(f"**Branch Coverage:** {branches * 100:.2f}%\n\n")
+
+          print(f"Test Coverage: {coverage * 100:.2f}%")
+          print(f"Branch Coverage: {branches * 100:.2f}%")
+          PY
+
+      # --------------------------------------------------
+      # ARTIFACTS
+      # --------------------------------------------------
+
+      - name: Upload PMD and JaCoCo reports
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: pmd-report
+          name: code-quality-reports
           path: |
             target/site/pmd.html
             target/pmd.xml
+            target/site/jacoco/
           if-no-files-found: warn
           retention-days: 14
 
+      # --------------------------------------------------
+      # PULL REQUEST COMMENT
+      # --------------------------------------------------
+
       - name: Comment Test Coverage & PMD Summary on PR
-        if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          NEWLINE=$'\n'
-
-          COVERAGE=$(awk "BEGIN {printf \"%.2f\", ${{ steps.jacoco.outputs.coverage }} * 100}")
-          BRANCHES=$(awk "BEGIN {printf \"%.2f\", ${{ steps.jacoco.outputs.branches }} * 100}")
-
-          PMD_TOTAL=${{ steps.pmd.outputs.total || 0 }}
-
-          PMD_PERCENT=$(awk "BEGIN {printf \"%.2f\", $PMD_TOTAL * 100 / ${{ env.MAX_PMD_VIOLATIONS }}}")
-
-          COVERAGE_EMOJI="✅"
-          if (( $(echo "$COVERAGE < ${{ env.EXPECTED_COVERAGE }} * 100" | bc -l) )); then
-            COVERAGE_EMOJI="⚠️"
-          fi
-          if (( $(echo "$COVERAGE < ${{ env.MIN_COVERAGE }} * 100" | bc -l) )); then
-            COVERAGE_EMOJI="❌"
-          fi
-
-          BRANCHES_EMOJI="✅"
-          if (( $(echo "$BRANCHES < ${{ env.EXPECTED_COVERAGE }} * 100" | bc -l) )); then
-            BRANCHES_EMOJI="⚠️"
-          fi
-          if (( $(echo "$BRANCHES < ${{ env.MIN_COVERAGE }} * 100" | bc -l) )); then
-            BRANCHES_EMOJI="❌"
-          fi
-
-          PMD_EMOJI="✅"
-          if (( $(echo "$PMD_TOTAL > ${{ env.EXPECTED_PMD_VIOLATIONS }}" | bc -l) )); then
-            PMD_EMOJI="⚠️"
-          fi
-          if (( $(echo "$PMD_TOTAL > ${{ env.MAX_PMD_VIOLATIONS }}" | bc -l) )); then
-            PMD_EMOJI="❌"
-          fi
-
-          BODY="## Test Coverage & PMD Summary${NEWLINE}"
-          BODY+="* __Test Coverage:__ ${COVERAGE}% ${COVERAGE_EMOJI}${NEWLINE}"
-          BODY+="* __Branch Coverage:__ ${BRANCHES}% ${BRANCHES_EMOJI}${NEWLINE}"
-          BODY+="* __PMD violations:__ ${PMD_PERCENT}% (${PMD_TOTAL} violations) ${PMD_EMOJI}${NEWLINE}"
-
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-          BODY+="${NEWLINE}### PMD Reports${NEWLINE}"
-          BODY+="* [Download HTML/XML reports](${RUN_URL})${NEWLINE}"
-          BODY+="* [View detailed PMD summary](${RUN_URL})${NEWLINE}"
-
-          gh pr comment ${{ github.event.pull_request.number }} -b "$BODY"
-        continue-on-error: true
+        if: always() && github.event_name == 'pull_request'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Fail build on low coverage
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COVERAGE: ${{ steps.jacoco.outputs.coverage_percent || '0.00' }}
+          BRANCHES: ${{ steps.jacoco.outputs.branches_percent || '0.00' }}
+          COVERAGE_AVAILABLE: ${{ steps.jacoco.outputs.available || 'false' }}
+          PMD_TOTAL: ${{ steps.pmd.outputs.total || '0' }}
+          PMD_AVAILABLE: ${{ steps.pmd.outputs.available || 'false' }}
+          MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
+          EXPECTED_COVERAGE: ${{ env.EXPECTED_COVERAGE }}
+          MAX_PMD_VIOLATIONS: ${{ env.MAX_PMD_VIOLATIONS }}
+          EXPECTED_PMD_VIOLATIONS: ${{ env.EXPECTED_PMD_VIOLATIONS }}
+          BUILD_RESULT: ${{ steps.build.outcome }}
         run: |
-          if (( $(echo "${{ steps.jacoco.outputs.coverage }} < ${{ env.MIN_COVERAGE }} || ${{ steps.jacoco.outputs.branches }} < ${{ env.MIN_COVERAGE }}" | bc -l) )); then
-            echo "⚠️ Code coverage is below minimum threshold (${{ env.MIN_COVERAGE }})"
-            exit 1
-          fi
+          python3 <<'PY'
+          import os
+
+          coverage = float(os.environ["COVERAGE"])
+          branches = float(os.environ["BRANCHES"])
+          pmd_total = int(os.environ["PMD_TOTAL"])
+
+          min_coverage = float(os.environ["MIN_COVERAGE"]) * 100
+          expected_coverage = float(os.environ["EXPECTED_COVERAGE"]) * 100
+
+          max_pmd = int(os.environ["MAX_PMD_VIOLATIONS"])
+          expected_pmd = int(os.environ["EXPECTED_PMD_VIOLATIONS"])
+
+          def coverage_status(value, available):
+              if not available:
+                  return "⚠️"
+              if value < min_coverage:
+                  return "❌"
+              if value < expected_coverage:
+                  return "⚠️"
+              return "✅"
+
+          def pmd_status(total, available):
+              if not available:
+                  return "⚠️"
+              if total > max_pmd:
+                  return "❌"
+              if total > expected_pmd:
+                  return "⚠️"
+              return "✅"
+
+          coverage_emoji = coverage_status(
+              coverage,
+              os.environ["COVERAGE_AVAILABLE"] == "true"
+          )
+
+          branches_emoji = coverage_status(
+              branches,
+              os.environ["COVERAGE_AVAILABLE"] == "true"
+          )
+
+          pmd_emoji = pmd_status(
+              pmd_total,
+              os.environ["PMD_AVAILABLE"] == "true"
+          )
+
+          build_emoji = "✅" if os.environ["BUILD_RESULT"] == "success" else "❌"
+
+          pmd_percent = min(100, pmd_total * 100 / max_pmd) if max_pmd > 0 else 0
+
+          body = f"""## Test Coverage & PMD Summary
+
+          - **Build:** {os.environ["BUILD_RESULT"]} {build_emoji}
+          - **Instruction Coverage:** {coverage:.2f}% {coverage_emoji}
+          - **Branch Coverage:** {branches:.2f}% {branches_emoji}
+          - **PMD violations:** {pmd_percent:.2f}% ({pmd_total} violations) {pmd_emoji}
+
+          ### Reports
+
+          [View detailed reports and artifacts]({os.environ["RUN_URL"]})
+          """
+
+          with open(os.path.join(os.environ["RUNNER_TEMP"], "pr-comment.md"), "w") as file:
+              file.write(body)
+
+          print(body)
+          PY
+
+          gh pr comment "$PR_NUMBER" --body-file "$RUNNER_TEMP/pr-comment.md"
+        continue-on-error: true
+
+      # --------------------------------------------------
+      # QUALITY GATES
+      # --------------------------------------------------
+
+      - name: Check quality gates
+        if: always()
+        env:
+          BUILD_RESULT: ${{ steps.build.outcome }}
+          COVERAGE: ${{ steps.jacoco.outputs.coverage || '0' }}
+          BRANCHES: ${{ steps.jacoco.outputs.branches || '0' }}
+          COVERAGE_AVAILABLE: ${{ steps.jacoco.outputs.available || 'false' }}
+          PMD_TOTAL: ${{ steps.pmd.outputs.total || '0' }}
+          PMD_AVAILABLE: ${{ steps.pmd.outputs.available || 'false' }}
+          MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
+          MAX_PMD_VIOLATIONS: ${{ env.MAX_PMD_VIOLATIONS }}
+        run: |
+          python3 <<'PY'
+          import os
+          import sys
+
+          errors = []
+
+          if os.environ["BUILD_RESULT"] != "success":
+              errors.append("Maven build, tests or SonarCloud analysis failed.")
+
+          if os.environ["COVERAGE_AVAILABLE"] != "true":
+              errors.append("JaCoCo report is missing.")
+          else:
+              minimum = float(os.environ["MIN_COVERAGE"])
+              coverage = float(os.environ["COVERAGE"])
+              branches = float(os.environ["BRANCHES"])
+
+              if coverage < minimum:
+                  errors.append(
+                      f"Instruction coverage ({coverage:.2%}) "
+                      f"is below minimum ({minimum:.0%})."
+                  )
+
+              if branches < minimum:
+                  errors.append(
+                      f"Branch coverage ({branches:.2%}) "
+                      f"is below minimum ({minimum:.0%})."
+                  )
+
+          if os.environ["PMD_AVAILABLE"] != "true":
+              errors.append("PMD report is missing.")
+          else:
+              total = int(os.environ["PMD_TOTAL"])
+              maximum = int(os.environ["MAX_PMD_VIOLATIONS"])
+
+              if total > maximum:
+                  errors.append(
+                      f"PMD violations ({total}) exceed maximum ({maximum})."
+                  )
+
+          if errors:
+              print("❌ Quality gates failed:\n")
+              for error in errors:
+                  print(f"- {error}")
+              sys.exit(1)
+
+          print("✅ All quality gates passed.")
+          PY
