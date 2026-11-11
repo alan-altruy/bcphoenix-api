@@ -1,0 +1,64 @@
+name: Release Build
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    name: Report and Package on Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Setup and Build via Docker (Tests, PMD, JaCoCo)
+        uses: ./.github/actions/setup-build
+        with:
+          maven-goal: 'verify'
+
+      - name: Generate JavaDoc via Docker
+        run: |
+          docker compose -f docker-compose-unit-test.yaml run --rm test-runner ./mvnw javadoc:javadoc
+
+      - name: Zip PMD Reports
+        run: |
+          cd target/site
+          zip -r ../../pmd.zip pmd.html pmd/ || true
+
+      - name: Zip JavaDoc
+        run: |
+          cd target/reports/apidocs
+          zip -r ../../../apidocs.zip ./* || true
+
+      - name: Zip Jacoco Report
+        run: |
+          cd target/site/jacoco
+          zip -r ../../../jacoco.zip ./* || true
+      
+      - name: Zip surefire-reports
+        run: |
+          cd target/surefire-reports
+          zip -r ../../surefire-reports.zip ./* || true
+
+      - name: Upload artifacts to release
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3
+        with:
+          files: |
+            pmd.zip
+            apidocs.zip
+            jacoco.zip
+            surefire-reports.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create Production JAR file via Docker
+        run: |
+          docker compose -f docker-compose-unit-test.yaml run --rm test-runner ./mvnw clean package spring-boot:repackage
+
+      #TODO: Push the jar file on the VPS

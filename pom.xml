@@ -11,8 +11,8 @@
 	<groupId>com.bcphoenix</groupId>
 	<artifactId>bcphoenix</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
+	<name>bcphoenix</name>
+	<description>API REST pour club de bowling</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>3.1.0</version>
+			<version>3.2.0</version>
 		</dependency>
 
 		<dependency>
@@ -129,6 +129,52 @@
 								</path>
 							</annotationProcessorPaths>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+						<!-- Plugin PMD pour l'analyse statique du code -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.26.0</version>
+				<configuration>
+					<sourceEncoding>UTF-8</sourceEncoding>
+					<targetJdk>21</targetJdk>
+					<failOnViolation>false</failOnViolation>
+					<printFails>true</printFails>
+					<!-- Utilisation directe du renderer SARIF natif de PMD -->
+					<format>net.sourceforge.pmd.renderers.SarifRenderer</format>
+					<outputDirectory>${project.build.directory}</outputDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+
+			<!-- Plugin JaCoCo pour la couverture de code -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.12</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>

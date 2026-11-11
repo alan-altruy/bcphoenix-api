@@ -12,7 +12,7 @@ services:
       - mysql_test_data:/var/lib/mysql
       - ./doc/schema.sql:/docker-entrypoint-initdb.d/schema.sql # <-- Exécute le script au premier démarrage
     networks:
-      - app-net
+      - app-net-test
     # Indispensable : attend que MySQL soit vraiment prêt à recevoir des requêtes
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
@@ -32,19 +32,17 @@ services:
       - DB_URL=jdbc:mysql://mysql-test:3306/${DB_NAME}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - SONAR_TOKEN=${SONAR_TOKEN}
     depends_on:
       mysql-test:
         condition: service_healthy # Attend que MySQL ait fini de démarrer
-    # Exécute Maven en pointant sur le conteneur mysql-test pour les tests unitaires
-    command: >
-      ./mvnw test 
     networks:
-      - app-net
+      - app-net-test
 
 volumes:
   mysql_test_data:
   maven_cache:
-  
+
 networks:
-  app-net:
+  app-net-test:
     driver: bridge

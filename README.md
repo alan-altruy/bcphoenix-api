@@ -1,3 +1,48 @@
+<table>
+<tr>
+<td valign="center">
+
+<a href="https://sonarcloud.io/summary/new_code?id=jasonfouret_bcphoenix&branch=main" target="_blank">
+  <img src="https://sonarcloud.io/images/project_badges/sonarcloud-highlight.svg" height="75">
+</a>
+
+</td>
+<td vlign="center">
+
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=alert_status&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=coverage&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=ncloc&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<br>
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=sqale_rating&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=security_rating&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=reliability_rating&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=duplicated_lines_density&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<br>
+
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=sqale_index&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=vulnerabilities&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=code_smells&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=bugs&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td valign="top">
+
+<!-- Ligne 2 -->
+
+<img src="https://github.com/jasonfouret/bcphoenix/actions/workflows/coverage-and-quality.yml/badge.svg" alt="Build & Quality">
+<img src="https://github.com/jasonfouret/bcphoenix/actions/workflows/scorecard.yml/badge.svg" alt="Scorecard">
+<img src="https://raw.githubusercontent.com/jasonfouret/bcphoenix/badges/jacoco.svg" alt="Coverage">
+<img src="https://raw.githubusercontent.com/jasonfouret/bcphoenix/badges/branches.svg" alt="Branches">
+
+</td>
+</tr>
+</table>
+
 # BC Phoenix API
 
 API REST en Java (Spring Boot) pour un club de bowling : affiliés, lieux, événements et scores, avec un accès public en lecture et un espace réservé aux administrateurs.

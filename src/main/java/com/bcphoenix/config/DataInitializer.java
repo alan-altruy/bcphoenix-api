@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 public class DataInitializer {
@@ -34,7 +36,7 @@ public class DataInitializer {
                 // Récupération sécurisée du rôle ADMIN (ID 2 créé par le schema.sql)
                 Role adminRole = entityManager.find(Role.class, 2);
                 if (adminRole == null) {
-                    throw new RuntimeException("Le rôle ADMIN (ID 2) est introuvable en base de données.");
+                    throw new IllegalStateException("Le rôle ADMIN (ID 2) est introuvable en base de données.");
                 }
 
                 User admin = new User();
@@ -45,7 +47,8 @@ public class DataInitializer {
                 admin.setRole(adminRole); // Ajustez selon le nom de votre setter (ex: setRole)
 
                 userRepository.save(admin);
-                System.out.println(">>> Premier administrateur créé avec succès : " + adminEmail);
+                Logger logger = LoggerFactory.getLogger(DataInitializer.class);
+                logger.info("Premier administrateur créé avec succès : {}", adminEmail);
             }
         };
     }
