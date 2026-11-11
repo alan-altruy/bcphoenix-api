@@ -45,7 +45,7 @@ jobs:
           results_format: sarif
           
           # Indispensable sur un dépôt privé pour analyser les règles de protection de branches
-          repo_token: ${{ secrets.SCORECARD_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
 
           # Forcé à false pour les dépôts privés (pas de publication sur l'API publique OpenSSF)
           publish_results: false
