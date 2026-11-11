@@ -9,6 +9,9 @@ CREATE TABLE IF NOT EXISTS roles (
     name VARCHAR(20) NOT NULL
 );
 
+-- Insertion du rôle ADMIN avec l'ID 2 (évite les doublons si le script est rejoué)
+INSERT IGNORE INTO roles (id, name) VALUES (2, 'ADMIN');
+
 CREATE TABLE IF NOT EXISTS users (
     id         INT AUTO_INCREMENT PRIMARY KEY,
     last_name  VARCHAR(100) NOT NULL,
