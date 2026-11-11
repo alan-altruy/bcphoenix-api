@@ -149,16 +149,6 @@ jobs:
             target/pmd.xml
           if-no-files-found: warn
           retention-days: 14
-      
-
-      - name: Deploy Badges to dedicated branch
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: badges
-          publish_dir: ./badges-tmp
-          commit_message: "chore: update coverage badges"
 
       - name: Comment Test Coverage & PMD Summary on PR
         if: ${{ github.event_name == 'pull_request' }}
