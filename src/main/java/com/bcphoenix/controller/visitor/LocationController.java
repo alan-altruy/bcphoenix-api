@@ -1,11 +1,8 @@
 package com.bcphoenix.controller.visitor;
 
-import com.bcphoenix.dto.request.LocationRequest;
 import com.bcphoenix.dto.response.LocationResponse;
 import com.bcphoenix.model.Location;
 import com.bcphoenix.service.LocationService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

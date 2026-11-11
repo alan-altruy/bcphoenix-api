@@ -2,7 +2,6 @@ package com.bcphoenix.controller.admin;
 
 import com.bcphoenix.dto.request.GameRequest;
 import com.bcphoenix.dto.response.admin.AdminGameResponse;
-import com.bcphoenix.dto.response.visitor.GameResponse;
 import com.bcphoenix.model.Game;
 import com.bcphoenix.service.GameService;
 import jakarta.validation.Valid;

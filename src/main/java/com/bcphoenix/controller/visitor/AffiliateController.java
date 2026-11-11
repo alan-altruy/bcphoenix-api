@@ -1,11 +1,8 @@
 package com.bcphoenix.controller.visitor;
 
-import com.bcphoenix.dto.request.AffiliateRequest;
 import com.bcphoenix.dto.response.visitor.AffiliateResponse;
 import com.bcphoenix.model.Affiliate;
 import com.bcphoenix.service.AffiliateService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

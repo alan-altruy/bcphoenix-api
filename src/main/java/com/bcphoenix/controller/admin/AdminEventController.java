@@ -2,13 +2,10 @@ package com.bcphoenix.controller.admin;
 
 import com.bcphoenix.dto.request.EventRequest;
 import com.bcphoenix.dto.response.EventResponse;
-import com.bcphoenix.model.Event;
 import com.bcphoenix.service.EventService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/events")

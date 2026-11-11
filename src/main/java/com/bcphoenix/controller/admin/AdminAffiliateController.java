@@ -2,7 +2,6 @@ package com.bcphoenix.controller.admin;
 
 import com.bcphoenix.dto.request.AffiliateRequest;
 import com.bcphoenix.dto.response.admin.AdminAffiliateResponse;
-import com.bcphoenix.dto.response.visitor.AffiliateResponse;
 import com.bcphoenix.model.Affiliate;
 import com.bcphoenix.service.AffiliateService;
 import jakarta.validation.Valid;
