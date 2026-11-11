@@ -223,7 +223,7 @@ jobs:
 
       - name: Fail build on low coverage
         run: |
-          if (( $(echo "${{ steps.jacoco.outputs.coverage }} < ${{ env.MIN_COVERAGE }} or ${{ steps.jacoco.outputs.branches }} < ${{ env.MIN_COVERAGE }}" | bc -l) )); then
-            echo "⚠️ Code coverage is below minimum threshold (${{ env.MIN_COVERAGE }}%)"
+          if (( $(echo "${{ steps.jacoco.outputs.coverage }} < ${{ env.MIN_COVERAGE }} || ${{ steps.jacoco.outputs.branches }} < ${{ env.MIN_COVERAGE }}" | bc -l) )); then
+            echo "⚠️ Code coverage is below minimum threshold (${{ env.MIN_COVERAGE }})"
             exit 1
           fi
