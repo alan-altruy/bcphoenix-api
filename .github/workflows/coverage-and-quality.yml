@@ -35,7 +35,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           java-version: '21'
-          maven-goal: 'verify -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=jasonfouret_bcphoenix'
+          maven-goal: 'verify -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=PokaChoc_bcphoenix -Dsonar.login=${{ secrets.SONAR_TOKEN }}'
 
       - name: Generate JaCoCo badges
         id: jacoco
