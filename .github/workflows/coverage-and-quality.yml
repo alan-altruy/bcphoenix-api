@@ -1,3 +1,4 @@
+
 name: Jacoco/PMD
 
 on:
@@ -16,8 +17,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      security-events: write
       actions: read
+
     env:
       MAX_PMD_VIOLATIONS: 5
       EXPECTED_PMD_VIOLATIONS: 0
@@ -32,7 +33,7 @@ jobs:
         uses: ./.github/actions/setup-build
         with:
           java-version: '21'
-          maven-goal: 'verify' # 'verify' lance les tests et génère les rapports JaCoCo & PMD nécessaires
+          maven-goal: 'verify'
 
       - name: Generate JaCoCo badges
         id: jacoco
@@ -42,6 +43,79 @@ jobs:
           generate-branches-badge: true
           generate-summary: true
           badges-directory: badges-tmp
+
+      # Récupération des rapports PMD déjà générés par verify
+      
+      - name: Analyze PMD violations
+        id: pmd
+        if: always()
+        run: |
+          python3 <<'PY'
+          import xml.etree.ElementTree as ET
+          import os
+
+          report = "target/pmd.xml"
+          violations = []
+
+          if os.path.isfile(report):
+              tree = ET.parse(report)
+              root = tree.getroot()
+
+              # Gestion du namespace PMD
+              ns = {"pmd": "http://pmd.sourceforge.net/report/2.0.0"}
+
+              for file in root.findall("pmd:file", ns):
+                  filename = file.get("name", "Unknown")
+
+                  for violation in file.findall("pmd:violation", ns):
+                      violations.append({
+                          "file": filename,
+                          "line": violation.get("beginline", "?"),
+                          "rule": violation.get("rule", "Unknown"),
+                          "priority": violation.get("priority", "?"),
+                          "message": "".join(violation.itertext()).strip()
+                      })
+
+          total = len(violations)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"total={total}\n")
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write("# PMD Code Quality Report\n\n")
+              summary.write(f"**Total violations: {total}**\n\n")
+
+              if total == 0:
+                  summary.write("No PMD violations found. ✅\n")
+              else:
+                  summary.write("| File | Line | Rule | Priority | Description |\n")
+                  summary.write("|---|---:|---|---:|---|\n")
+
+                  for v in violations:
+                      file = v["file"].replace("|", "\\|")
+                      rule = v["rule"].replace("|", "\\|")
+                      message = v["message"].replace("|", "\\|").replace("\n", " ")
+
+                      summary.write(
+                          f"| `{file}` | {v['line']} | {rule} "
+                          f"| {v['priority']} | {message} |\n"
+                      )
+
+          print(f"PMD: {total} violations detected.")
+          PY
+
+
+      # Publication des rapports HTML et XML
+      - name: Upload PMD reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pmd-report
+          path: |
+            target/site/pmd.html
+            target/pmd.xml
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Deploy Badges to dedicated branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -59,14 +133,9 @@ jobs:
 
           COVERAGE=$(awk "BEGIN {printf \"%.2f\", ${{ steps.jacoco.outputs.coverage }} * 100}")
           BRANCHES=$(awk "BEGIN {printf \"%.2f\", ${{ steps.jacoco.outputs.branches }} * 100}")
-          
-          # Récupération sécurisée du nombre de violations depuis le rapport maven/pmd si présent
-          PMD_TOTAL=0
-          if [ -f "target/pmd.xml" ]; then
-            # Exemple simple ou comptage par défaut
-            PMD_TOTAL=$(grep -c "<violation" target/pmd.xml || echo 0)
-          fi
-          
+
+          PMD_TOTAL=${{ steps.pmd.outputs.total || 0 }}
+
           PMD_PERCENT=$(awk "BEGIN {printf \"%.2f\", $PMD_TOTAL * 100 / ${{ env.MAX_PMD_VIOLATIONS }}}")
 
           COVERAGE_EMOJI="✅"
@@ -98,11 +167,13 @@ jobs:
           BODY+="* __Branch Coverage:__ ${BRANCHES}% ${BRANCHES_EMOJI}${NEWLINE}"
           BODY+="* __PMD violations:__ ${PMD_PERCENT}% (${PMD_TOTAL} violations) ${PMD_EMOJI}${NEWLINE}"
 
-          if (( PMD_TOTAL > 0 )); then
-            BODY+="* See [Security → Code scanning alerts](https://github.com/${{ github.repository }}/security/code-scanning) for details."
-          fi
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-          gh pr comment ${{ github.event.pull_request.number }} -b "${BODY}"
+          BODY+="${NEWLINE}### PMD Reports${NEWLINE}"
+          BODY+="* [Download HTML/XML reports](${RUN_URL})${NEWLINE}"
+          BODY+="* [View detailed PMD summary](${RUN_URL})${NEWLINE}"
+
+          gh pr comment ${{ github.event.pull_request.number }} -b "$BODY"
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
