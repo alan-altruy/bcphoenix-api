@@ -4,7 +4,6 @@ on:
   workflow_run:
     workflows: ["Jacoco/PMD"]
     types: [completed]
-    branches: [master]
 
 permissions:
   contents: read
