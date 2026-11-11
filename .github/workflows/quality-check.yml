@@ -48,80 +48,6 @@ jobs:
             path: quality-artifacts
 
       # --------------------------------------------------
-      # QUALITY GATES
-      # --------------------------------------------------
-
-      - name: Check quality gates
-        id: gates
-        if: always()
-        env:
-          BUILD_RESULT: ${{ inputs.build_result }}
-          MIN_COVERAGE: ${{ inputs.min_coverage }}
-          MAX_PMD_VIOLATIONS: ${{ inputs.max_pmd_violations }}
-        run: |
-          python3 <<'PY'
-          import json
-          import os
-          import sys
-
-          report = "quality-artifacts/quality-results.json"
-          errors = []
-
-          if os.path.isfile(report):
-              with open(report) as file:
-                  results = json.load(file)
-          else:
-              results = {
-                  "coverage": 0,
-                  "branches": 0,
-                  "coverage_available": False,
-                  "pmd_total": 0,
-                  "pmd_available": False
-              }
-
-          if os.environ["BUILD_RESULT"] != "success":
-              errors.append("Maven build, tests or SonarCloud analysis failed.")
-
-          if not results["coverage_available"]:
-              errors.append("JaCoCo report is missing.")
-          else:
-              minimum = float(os.environ["MIN_COVERAGE"])
-              coverage = float(results["coverage"])
-              branches = float(results["branches"])
-
-              if coverage < minimum:
-                  errors.append(
-                      f"Instruction coverage ({coverage:.2%}) "
-                      f"is below minimum ({minimum:.0%})."
-                  )
-
-              if branches < minimum:
-                  errors.append(
-                      f"Branch coverage ({branches:.2%}) "
-                      f"is below minimum ({minimum:.0%})."
-                  )
-
-          if not results["pmd_available"]:
-              errors.append("PMD report is missing.")
-          else:
-              total = int(results["pmd_total"])
-              maximum = int(os.environ["MAX_PMD_VIOLATIONS"])
-
-              if total > maximum:
-                  errors.append(
-                      f"PMD violations ({total}) exceed maximum ({maximum})."
-                  )
-
-          if errors:
-              print("❌ Quality gates failed:\n")
-              for error in errors:
-                  print(f"- {error}")
-              sys.exit(1)
-
-          print("✅ All quality gates passed.")
-          PY
-
-      # --------------------------------------------------
       # PULL REQUEST COMMENT
       # --------------------------------------------------
 
@@ -222,3 +148,77 @@ jobs:
 
           gh pr comment "$PR_NUMBER" --body-file "$RUNNER_TEMP/pr-comment.md"
         continue-on-error: true
+        
+      # --------------------------------------------------
+      # QUALITY GATES
+      # --------------------------------------------------
+
+      - name: Check quality gates
+        id: gates
+        if: always()
+        env:
+          BUILD_RESULT: ${{ inputs.build_result }}
+          MIN_COVERAGE: ${{ inputs.min_coverage }}
+          MAX_PMD_VIOLATIONS: ${{ inputs.max_pmd_violations }}
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+          import sys
+
+          report = "quality-artifacts/quality-results.json"
+          errors = []
+
+          if os.path.isfile(report):
+              with open(report) as file:
+                  results = json.load(file)
+          else:
+              results = {
+                  "coverage": 0,
+                  "branches": 0,
+                  "coverage_available": False,
+                  "pmd_total": 0,
+                  "pmd_available": False
+              }
+
+          if os.environ["BUILD_RESULT"] != "success":
+              errors.append("Maven build, tests or SonarCloud analysis failed.")
+
+          if not results["coverage_available"]:
+              errors.append("JaCoCo report is missing.")
+          else:
+              minimum = float(os.environ["MIN_COVERAGE"])
+              coverage = float(results["coverage"])
+              branches = float(results["branches"])
+
+              if coverage < minimum:
+                  errors.append(
+                      f"Instruction coverage ({coverage:.2%}) "
+                      f"is below minimum ({minimum:.0%})."
+                  )
+
+              if branches < minimum:
+                  errors.append(
+                      f"Branch coverage ({branches:.2%}) "
+                      f"is below minimum ({minimum:.0%})."
+                  )
+
+          if not results["pmd_available"]:
+              errors.append("PMD report is missing.")
+          else:
+              total = int(results["pmd_total"])
+              maximum = int(os.environ["MAX_PMD_VIOLATIONS"])
+
+              if total > maximum:
+                  errors.append(
+                      f"PMD violations ({total}) exceed maximum ({maximum})."
+                  )
+
+          if errors:
+              print("❌ Quality gates failed:\n")
+              for error in errors:
+                  print(f"- {error}")
+              sys.exit(1)
+
+          print("✅ All quality gates passed.")
+          PY
