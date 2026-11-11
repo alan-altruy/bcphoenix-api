@@ -28,21 +28,6 @@
 </tr>
 </table>
 
-<table>
-<tr>
-<td valign="top">
-
-<!-- Ligne 2 -->
-
-<img src="https://github.com/jasonfouret/bcphoenix/actions/workflows/coverage-and-quality.yml/badge.svg" alt="Build & Quality">
-<img src="https://github.com/jasonfouret/bcphoenix/actions/workflows/scorecard.yml/badge.svg" alt="Scorecard">
-<img src="https://raw.githubusercontent.com/jasonfouret/bcphoenix/badges/jacoco.svg" alt="Coverage">
-<img src="https://raw.githubusercontent.com/jasonfouret/bcphoenix/badges/branches.svg" alt="Branches">
-
-</td>
-</tr>
-</table>
-
 # BC Phoenix API
 
 API REST en Java (Spring Boot) pour un club de bowling : affiliés, lieux, événements et scores, avec un accès public en lecture et un espace réservé aux administrateurs.
