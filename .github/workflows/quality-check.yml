@@ -1,203 +1,116 @@
 
-name: Quality Check
+name: Quality Gates
 
 on:
   workflow_call:
     inputs:
       build_result:
+        description: "Result of the build job"
         required: true
         type: string
       min_coverage:
+        description: "Minimum instruction and branch coverage"
         required: true
         type: number
       expected_coverage:
+        description: "Expected coverage"
         required: true
         type: number
       max_pmd_violations:
+        description: "Maximum allowed PMD violations"
         required: true
         type: number
       expected_pmd_violations:
+        description: "Expected PMD violations"
         required: true
         type: number
 
+permissions:
+  contents: read
+  actions: read
+  issues: write
+  pull-requests: write
+
 jobs:
   quality-check:
+    name: Quality Gates
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download quality results
-        uses: actions/download-artifact@v4
-        with:
-          name: quality-results
-          path: quality-results
+      # --------------------------------------------------
+      # DOWNLOAD BUILD RESULTS
+      # --------------------------------------------------
 
-      # Calcul des statuts et contrôle des seuils.
+      - name: Download quality results
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+            name: code-quality-reports
+            path: quality-artifacts
+
+      # --------------------------------------------------
+      # QUALITY GATES
+      # --------------------------------------------------
+
       - name: Check quality gates
-        id: metrics
+        id: gates
         if: always()
         env:
           BUILD_RESULT: ${{ inputs.build_result }}
           MIN_COVERAGE: ${{ inputs.min_coverage }}
-          EXPECTED_COVERAGE: ${{ inputs.expected_coverage }}
           MAX_PMD_VIOLATIONS: ${{ inputs.max_pmd_violations }}
-          EXPECTED_PMD_VIOLATIONS: ${{ inputs.expected_pmd_violations }}
         run: |
           python3 <<'PY'
           import json
           import os
           import sys
-          from pathlib import Path
 
+          report = "quality-artifacts/quality-results.json"
           errors = []
 
-          report = Path("quality-results/quality-results.json")
-
-          if report.exists():
-              data = json.loads(report.read_text())
+          if os.path.isfile(report):
+              with open(report) as file:
+                  results = json.load(file)
           else:
-              data = {}
+              results = {
+                  "coverage": 0,
+                  "branches": 0,
+                  "coverage_available": False,
+                  "pmd_total": 0,
+                  "pmd_available": False
+              }
 
-          build_result = os.environ["BUILD_RESULT"]
+          if os.environ["BUILD_RESULT"] != "success":
+              errors.append("Maven build, tests or SonarCloud analysis failed.")
 
-          minimum = float(os.environ["MIN_COVERAGE"])
-          expected = float(os.environ["EXPECTED_COVERAGE"])
-
-          maximum_pmd = int(os.environ["MAX_PMD_VIOLATIONS"])
-          expected_pmd = int(os.environ["EXPECTED_PMD_VIOLATIONS"])
-
-          coverage_available = data.get("coverage_available", False)
-          branches_available = data.get("branches_available", False)
-          pmd_available = data.get("pmd_available", False)
-
-          coverage = float(data.get("coverage", 0))
-          branches = float(data.get("branches", 0))
-          pmd_total = int(data.get("pmd_total", 0))
-
-          # Statuts de couverture
-          def coverage_status(value, available):
-              if not available:
-                  return "❌"
-
-              if value >= expected:
-                  return "✅"
-
-              if value >= minimum:
-                  return "⚠️"
-
-              return "❌"
-
-          # Statut PMD
-          def pmd_status(total, available):
-              if not available:
-                  return "❌"
-
-              if total <= expected_pmd:
-                  return "✅"
-
-              if total <= maximum_pmd:
-                  return "⚠️"
-
-              return "❌"
-
-          coverage_emoji = coverage_status(
-              coverage, coverage_available
-          )
-
-          branches_emoji = coverage_status(
-              branches, branches_available
-          )
-
-          pmd_emoji = pmd_status(
-              pmd_total, pmd_available
-          )
-
-          # Pourcentage PMD par rapport au maximum autorisé
-          if maximum_pmd > 0:
-              pmd_percent = min(100, pmd_total * 100 / maximum_pmd)
+          if not results["coverage_available"]:
+              errors.append("JaCoCo report is missing.")
           else:
-              pmd_percent = 0 if pmd_total == 0 else 100
+              minimum = float(os.environ["MIN_COVERAGE"])
+              coverage = float(results["coverage"])
+              branches = float(results["branches"])
 
-          # Export des valeurs pour le commentaire PR
-          outputs = {
-              "coverage": f"{coverage * 100:.2f}",
-              "branches": f"{branches * 100:.2f}",
-              "pmd_total": str(pmd_total),
-              "pmd_percent": f"{pmd_percent:.2f}",
-              "coverage_available": str(coverage_available).lower(),
-              "branches_available": str(branches_available).lower(),
-              "pmd_available": str(pmd_available).lower(),
-              "coverage_emoji": coverage_emoji,
-              "branches_emoji": branches_emoji,
-              "pmd_emoji": pmd_emoji
-          }
+              if coverage < minimum:
+                  errors.append(
+                      f"Instruction coverage ({coverage:.2%}) "
+                      f"is below minimum ({minimum:.0%})."
+                  )
 
-          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
-              for key, value in outputs.items():
-                  output.write(f"{key}={value}\n")
+              if branches < minimum:
+                  errors.append(
+                      f"Branch coverage ({branches:.2%}) "
+                      f"is below minimum ({minimum:.0%})."
+                  )
 
-          # Vérification du build
-          if build_result != "success":
-              errors.append(
-                  "Maven build, tests or SonarCloud analysis failed."
-              )
-
-          # Vérification JaCoCo
-          if not coverage_available:
-              errors.append("JaCoCo instruction coverage report is missing.")
-          elif coverage < minimum:
-              errors.append(
-                  f"Instruction coverage ({coverage:.2%}) "
-                  f"is below minimum ({minimum:.0%})."
-              )
-
-          if not branches_available:
-              errors.append("JaCoCo branch coverage report is missing.")
-          elif branches < minimum:
-              errors.append(
-                  f"Branch coverage ({branches:.2%}) "
-                  f"is below minimum ({minimum:.0%})."
-              )
-
-          # Vérification PMD
-          if not pmd_available:
+          if not results["pmd_available"]:
               errors.append("PMD report is missing.")
-          elif pmd_total > maximum_pmd:
-              errors.append(
-                  f"PMD violations ({pmd_total}) "
-                  f"exceed maximum ({maximum_pmd})."
-              )
-
-          # Résumé GitHub
-          summary = [
-              "## Test Coverage & PMD Summary",
-              "",
-              "| Metric | Result | Status |",
-              "|---|---:|:---:|",
-              f"| Instruction coverage | {coverage * 100:.2f}% | {coverage_emoji} |",
-              f"| Branch coverage | {branches * 100:.2f}% | {branches_emoji} |",
-              f"| PMD violations | {pmd_total} ({pmd_percent:.2f}% of maximum) | {pmd_emoji} |",
-              "",
-              f"- Minimum coverage: {minimum:.0%}",
-              f"- Expected coverage: {expected:.0%}",
-              f"- Maximum PMD violations: {maximum_pmd}",
-              f"- Expected PMD violations: {expected_pmd}",
-              ""
-          ]
-
-          if errors:
-              summary.extend([
-                  "### ❌ Quality Gates Failed",
-                  ""
-              ])
-              summary.extend(f"- {error}" for error in errors)
           else:
-              summary.extend([
-                  "### ✅ All Quality Gates Passed",
-                  ""
-              ])
+              total = int(results["pmd_total"])
+              maximum = int(os.environ["MAX_PMD_VIOLATIONS"])
 
-          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as file:
-              file.write("\n".join(summary) + "\n")
+              if total > maximum:
+                  errors.append(
+                      f"PMD violations ({total}) exceed maximum ({maximum})."
+                  )
 
           if errors:
               print("❌ Quality gates failed:\n")
@@ -206,89 +119,106 @@ jobs:
               sys.exit(1)
 
           print("✅ All quality gates passed.")
+          PY
 
-      # Commentaire automatique dans la PR.
-      # Il est publié même si les Quality Gates échouent.
-      - name: Comment PR with quality results
+      # --------------------------------------------------
+      # PULL REQUEST COMMENT
+      # --------------------------------------------------
+
+      - name: Comment Test Coverage & PMD Summary on PR
         if: always() && github.event_name == 'pull_request'
-        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          COVERAGE: ${{ steps.metrics.outputs.coverage || '0' }}
-          BRANCHES: ${{ steps.metrics.outputs.branches || '0' }}
-          PMD_TOTAL: ${{ steps.metrics.outputs.pmd_total || '0' }}
-          PMD_PERCENT: ${{ steps.metrics.outputs.pmd_percent || '0' }}
-          COVERAGE_AVAILABLE: ${{ steps.metrics.outputs.coverage_available || 'false' }}
-          BRANCHES_AVAILABLE: ${{ steps.metrics.outputs.branches_available || 'false' }}
-          PMD_AVAILABLE: ${{ steps.metrics.outputs.pmd_available || 'false' }}
-          COVERAGE_EMOJI: ${{ steps.metrics.outputs.coverage_emoji || '❌' }}
-          BRANCHES_EMOJI: ${{ steps.metrics.outputs.branches_emoji || '❌' }}
-          PMD_EMOJI: ${{ steps.metrics.outputs.pmd_emoji || '❌' }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           BUILD_RESULT: ${{ inputs.build_result }}
           EXPECTED_COVERAGE: ${{ inputs.expected_coverage }}
           MIN_COVERAGE: ${{ inputs.min_coverage }}
-          EXPECTED_PMD_VIOLATIONS: ${{ inputs.expected_pmd_violations }}
           MAX_PMD_VIOLATIONS: ${{ inputs.max_pmd_violations }}
-          SERVER_URL: ${{ github.server_url }}
-          REPOSITORY: ${{ github.repository }}
-          RUN_ID: ${{ github.run_id }}
+          EXPECTED_PMD_VIOLATIONS: ${{ inputs.expected_pmd_violations }}
         run: |
           python3 <<'PY'
+          import json
           import os
 
-          def percentage(value, available):
-              if available != "true":
-                  return "N/A"
-              return f"{float(value):.2f}%"
+          report = "quality-artifacts/quality-results.json"
 
-          coverage = percentage(
-              os.environ["COVERAGE"],
-              os.environ["COVERAGE_AVAILABLE"]
-          )
-
-          branches = percentage(
-              os.environ["BRANCHES"],
-              os.environ["BRANCHES_AVAILABLE"]
-          )
-
-          if os.environ["PMD_AVAILABLE"] == "true":
-              pmd = (
-                  f'{os.environ["PMD_TOTAL"]} '
-                  f'({os.environ["PMD_PERCENT"]}% of maximum)'
-              )
+          if os.path.isfile(report):
+              with open(report) as file:
+                  results = json.load(file)
           else:
-              pmd = "N/A"
+              results = {
+                  "coverage_percent": 0.0,
+                  "branches_percent": 0.0,
+                  "coverage_available": False,
+                  "pmd_total": 0,
+                  "pmd_available": False
+              }
 
-          build_status = (
-              "✅ Success"
-              if os.environ["BUILD_RESULT"] == "success"
-              else "❌ Failed"
+          coverage = float(results["coverage_percent"])
+          branches = float(results["branches_percent"])
+          pmd_total = int(results["pmd_total"])
+
+          min_coverage = float(os.environ["MIN_COVERAGE"]) * 100
+          expected_coverage = float(os.environ["EXPECTED_COVERAGE"]) * 100
+
+          max_pmd = int(os.environ["MAX_PMD_VIOLATIONS"])
+          expected_pmd = int(os.environ["EXPECTED_PMD_VIOLATIONS"])
+
+          def coverage_status(value, available):
+              if not available:
+                  return "⚠️"
+              if value < min_coverage:
+                  return "❌"
+              if value < expected_coverage:
+                  return "⚠️"
+              return "✅"
+
+          def pmd_status(total, available):
+              if not available:
+                  return "⚠️"
+              if total > max_pmd:
+                  return "❌"
+              if total > expected_pmd:
+                  return "⚠️"
+              return "✅"
+
+          coverage_emoji = coverage_status(
+              coverage,
+              results["coverage_available"]
           )
+
+          branches_emoji = coverage_status(
+              branches,
+              results["coverage_available"]
+          )
+
+          pmd_emoji = pmd_status(
+              pmd_total,
+              results["pmd_available"]
+          )
+
+          build_emoji = "✅" if os.environ["BUILD_RESULT"] == "success" else "❌"
+
+          pmd_percent = min(100, pmd_total * 100 / max_pmd) if max_pmd > 0 else 0
 
           body = f"""## Test Coverage & PMD Summary
 
-          | Metric | Result | Status |
-          |---|---:|:---:|
-          | Build | {build_status} | |
-          | Instruction coverage | {coverage} | {os.environ["COVERAGE_EMOJI"]} |
-          | Branch coverage | {branches} | {os.environ["BRANCHES_EMOJI"]} |
-          | PMD violations | {pmd} | {os.environ["PMD_EMOJI"]} |
+          - **Build:** {os.environ["BUILD_RESULT"]} {build_emoji}
+          - **Instruction Coverage:** {coverage:.2f}% {coverage_emoji}
+          - **Branch Coverage:** {branches:.2f}% {branches_emoji}
+          - **PMD violations:** {pmd_percent:.2f}% ({pmd_total} violations) {pmd_emoji}
 
-          ### Quality thresholds
+          ### Reports
 
-          | Metric | Expected | Minimum / Maximum |
-          |---|---:|---:|
-          | Coverage | {float(os.environ["EXPECTED_COVERAGE"]):.0%} | {float(os.environ["MIN_COVERAGE"]):.0%} |
-          | PMD violations | {os.environ["EXPECTED_PMD_VIOLATIONS"]} | {os.environ["MAX_PMD_VIOLATIONS"]} |
-
-          [View workflow run]({os.environ["SERVER_URL"]}/{os.environ["REPOSITORY"]}/actions/runs/{os.environ["RUN_ID"]})
-
-          [View Security Code Scanning]({os.environ["SERVER_URL"]}/{os.environ["REPOSITORY"]}/security/code-scanning)
+          [View detailed reports and artifacts]({os.environ["RUN_URL"]})
           """
 
-          with open("pr-comment.md", "w") as file:
+          with open(os.path.join(os.environ["RUNNER_TEMP"], "pr-comment.md"), "w") as file:
               file.write(body)
+
+          print(body)
           PY
 
-          gh pr comment "$PR_NUMBER" --body-file pr-comment.md
+          gh pr comment "$PR_NUMBER" --body-file "$RUNNER_TEMP/pr-comment.md"
+        continue-on-error: true
