@@ -1,4 +1,4 @@
-name: Build
+name: CI
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    name: Build, Test and Analyze
     services:
       mysql:
         image: mysql:8
@@ -131,6 +131,7 @@ jobs:
           retention-days: 1
 
   quality-check:
+    name: Quality Check
     needs: build
     if: always()
     uses: ./.github/workflows/quality-check.yml
