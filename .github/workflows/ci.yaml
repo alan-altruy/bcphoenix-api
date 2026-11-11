@@ -13,7 +13,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build, Test and Analyze
+    name: Build and Test
     services:
       mysql:
         image: mysql:8
