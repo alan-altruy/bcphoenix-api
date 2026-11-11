@@ -16,8 +16,12 @@ on:
 
 # Declare default permissions as read only.
 permissions:
-  contents: read
-  actions: read  # Activé pour les dépôts privés
+      security-events: write
+      id-token: write
+      contents: read
+      issues: read
+      pull-requests: read
+      checks: read
 
 jobs:
   analysis:
