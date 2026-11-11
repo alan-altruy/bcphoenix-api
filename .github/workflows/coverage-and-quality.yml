@@ -29,8 +29,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup and Build
         uses: ./.github/actions/setup-build
@@ -38,13 +36,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           java-version: '21'
-          maven-goal: >-
-            verify -B
-            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
-            -Dsonar.projectKey=PokaChoc_bcphoenix-api
-            -Dsonar.organization=pokachoc
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+          maven-goal: verify
 
       - name: Generate JaCoCo badges
         id: jacoco
