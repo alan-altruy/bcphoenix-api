@@ -1,5 +1,5 @@
 
-name: Jacoco/PMD
+name: Code Quality & Coverage
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   coverage-quality:
-    name: Run Coverage & PMD Code Quality
+    name: Build, Tests & Code Quality
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -35,7 +35,13 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           java-version: '21'
-          maven-goal: 'verify -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=PokaChoc_bcphoenix -Dsonar.login=${{ secrets.SONAR_TOKEN }}'
+          maven-goal: >-
+            verify -B
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+            -Dsonar.projectKey=PokaChoc_bcphoenix
+            -Dsonar.organization=pokachoc
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
       - name: Generate JaCoCo badges
         id: jacoco
