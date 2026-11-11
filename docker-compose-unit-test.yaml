@@ -32,6 +32,7 @@ services:
       - DB_URL=jdbc:mysql://mysql-test:3306/${DB_NAME}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - SONAR_TOKEN=${SONAR_TOKEN}
     depends_on:
       mysql-test:
         condition: service_healthy # Attend que MySQL ait fini de démarrer
