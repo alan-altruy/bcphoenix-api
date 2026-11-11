@@ -272,7 +272,6 @@ jobs:
   # --------------------------------------------------
 
   quality-check:
-    name: Quality Checks
     needs: build
     if: always()
     uses: ./.github/workflows/quality-check.yml

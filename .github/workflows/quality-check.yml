@@ -1,5 +1,5 @@
 
-name: Quality Gates
+name: Quality Checks
 
 on:
   workflow_call:
@@ -56,6 +56,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           BUILD_RESULT: ${{ inputs.build_result }}
           EXPECTED_COVERAGE: ${{ inputs.expected_coverage }}
@@ -146,9 +147,11 @@ jobs:
           print(body)
           PY
 
-          gh pr comment "$PR_NUMBER" --body-file "$RUNNER_TEMP/pr-comment.md"
+          gh pr comment "$PR_NUMBER" \
+            --repo "$GITHUB_REPOSITORY" \
+            --body-file "$RUNNER_TEMP/pr-comment.md"
         continue-on-error: true
-        
+
       # --------------------------------------------------
       # QUALITY GATES
       # --------------------------------------------------
