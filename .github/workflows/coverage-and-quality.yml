@@ -75,7 +75,7 @@ jobs:
           DATABASE_URL: jdbc:mysql://127.0.0.1:3306/bcphoenix
           DB_USERNAME: root
           DB_PASSWORD: rootpassword
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=PokaChoc_bcphoenix-api -Dsonar.organization=pokaChoc
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=PokaChoc_bcphoenix-api -Dsonar.organization=pokachoc
 
       - name: Generate JaCoCo badges
         id: jacoco
