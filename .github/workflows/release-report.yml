@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
 
       - name: Setup and Build via Docker (Tests, PMD, JaCoCo)
         uses: ./.github/actions/setup-build
@@ -47,7 +47,7 @@ jobs:
           zip -r ../../surefire-reports.zip ./* || true
 
       - name: Upload artifacts to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3
         with:
           files: |
             pmd.zip
