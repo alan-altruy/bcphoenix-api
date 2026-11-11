@@ -1,4 +1,4 @@
-<!-- <table>
+<table>
 <tr>
 <td valign="center">
 
@@ -9,33 +9,32 @@
 </td>
 <td vlign="center">
 
-<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=alert_status">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=coverage">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=ncloc">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=alert_status&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=coverage&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=ncloc&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
 <br>
-<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=sqale_rating">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=security_rating">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=reliability_rating">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=duplicated_lines_density">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=sqale_rating&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=security_rating&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=reliability_rating&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=duplicated_lines_density&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
 <br>
 
-<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=sqale_index">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=vulnerabilities">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=code_smells">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=jasonfouret_bcphoenix&metric=bugs">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=sqale_index&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=vulnerabilities&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=code_smells&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=bugs&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
 
 </td>
 </tr>
-</table> -->
+</table>
 
 <table>
 <tr>
 <td valign="top">
 
 <!-- Ligne 2 -->
-<img src="https://github.com/jasonfouret/bcphoenix/actions/workflows/build-and-test.yml/badge.svg" alt="Maven Build">
-<img src="https://github.com/jasonfouret/bcphoenix/actions/workflows/coverage-and-quality.yml/badge.svg" alt="PMD">
-<img src="https://github.com/jasonfouret/bcphoenix/actions/workflows/codeql.yml/badge.svg" alt="CodeQL">
+
+<img src="https://github.com/jasonfouret/bcphoenix/actions/workflows/coverage-and-quality.yml/badge.svg" alt="Build & Quality">
 <img src="https://github.com/jasonfouret/bcphoenix/actions/workflows/scorecard.yml/badge.svg" alt="Scorecard">
 <img src="https://raw.githubusercontent.com/jasonfouret/bcphoenix/badges/jacoco.svg" alt="Coverage">
 <img src="https://raw.githubusercontent.com/jasonfouret/bcphoenix/badges/branches.svg" alt="Branches">
