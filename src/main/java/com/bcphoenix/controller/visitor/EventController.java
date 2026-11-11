@@ -1,11 +1,8 @@
 package com.bcphoenix.controller.visitor;
 
-import com.bcphoenix.dto.request.EventRequest;
 import com.bcphoenix.dto.response.EventResponse;
 import com.bcphoenix.model.Event;
 import com.bcphoenix.service.EventService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
