@@ -77,15 +77,6 @@ jobs:
           DB_PASSWORD: rootpassword
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=PokaChoc_bcphoenix-api -Dsonar.organization=pokachoc
 
-      - name: Generate JaCoCo badges
-        id: jacoco
-        uses: cicirello/jacoco-badge-generator@72266185b7ee48a6fd74eaf0238395cc8b14fef8
-        with:
-          generate-coverage-badge: true
-          generate-branches-badge: true
-          generate-summary: true
-          badges-directory: badges-tmp
-
       # Récupération des rapports PMD déjà générés par verify
       
       - name: Analyze PMD violations
