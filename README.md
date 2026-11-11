@@ -1,34 +1,35 @@
+# BC Phoenix API
+
+<!-- markdownlint-disable MD033 MD045 -->
 <table>
 <tr>
-<td valign="center">
+<td align="center" valign="middle">
 
 <a href="https://sonarcloud.io/summary/new_code?id=jasonfouret_bcphoenix&branch=main" target="_blank">
-  <img src="https://sonarcloud.io/images/project_badges/sonarcloud-highlight.svg" height="75">
+  <img src="https://sonarcloud.io/images/project_badges/sonarcloud-highlight.svg" height="75" alt="SonarCloud">
 </a>
 
 </td>
-<td vlign="center">
+<td align="center" valign="middle">
 
-<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=alert_status&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=coverage&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=ncloc&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=alert_status&token=fa779889c5d02af6baa4728c8573a47e2f275ab0" alt="Quality Gate">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=coverage&token=fa779889c5d02af6baa4728c8573a47e2f275ab0" alt="Coverage">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=ncloc&token=fa779889c5d02af6baa4728c8573a47e2f275ab0" alt="Lines of Code">
 <br>
-<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=sqale_rating&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=security_rating&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=reliability_rating&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=duplicated_lines_density&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=sqale_rating&token=fa779889c5d02af6baa4728c8573a47e2f275ab0" alt="Maintainability">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=security_rating&token=fa779889c5d02af6baa4728c8573a47e2f275ab0" alt="Security">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=reliability_rating&token=fa779889c5d02af6baa4728c8573a47e2f275ab0" alt="Reliability">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=duplicated_lines_density&token=fa779889c5d02af6baa4728c8573a47e2f275ab0" alt="Duplications">
 <br>
-
-<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=sqale_index&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=vulnerabilities&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=code_smells&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=bugs&token=fa779889c5d02af6baa4728c8573a47e2f275ab0">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=sqale_index&token=fa779889c5d02af6baa4728c8573a47e2f275ab0" alt="Technical Debt">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=vulnerabilities&token=fa779889c5d02af6baa4728c8573a47e2f275ab0" alt="Vulnerabilities">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=code_smells&token=fa779889c5d02af6baa4728c8573a47e2f275ab0" alt="Code Smells">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=PokaChoc_bcphoenix-api&metric=bugs&token=fa779889c5d02af6baa4728c8573a47e2f275ab0" alt="Bugs">
 
 </td>
 </tr>
 </table>
-
-# BC Phoenix API
+<!-- markdownlint-enable MD033 MD045 -->
 
 API REST en Java (Spring Boot) pour un club de bowling : affiliés, lieux, événements et scores, avec un accès public en lecture et un espace réservé aux administrateurs.
 
@@ -51,7 +52,7 @@ API REST en Java (Spring Boot) pour un club de bowling : affiliés, lieux, évé
 ## Installation et Lancement avec Docker
 
 1. Cloner le projet :
-   git clone https://github.com/JasonFouret/bcphoenix.git
+   git clone <https://github.com/JasonFouret/bcphoenix.git>
    cd bcphoenix
 
 2. Créer un fichier `.env` à la racine du projet en y renseignant vos variables :
@@ -65,30 +66,30 @@ API REST en Java (Spring Boot) pour un club de bowling : affiliés, lieux, évé
 3. Lancer l'application complète (Base de données MySQL + API) :
    docker compose up --build
 
-L'API démarre sur http://localhost:8080 et initialise automatiquement la base de données ainsi que le compte administrateur.
+L'API démarre sur <http://localhost:8080> et initialise automatiquement la base de données ainsi que le compte administrateur.
 
 ## Connexion
 
 L'API utilise une **session par cookie**. L'identifiant de connexion est l'email.
 
-| Méthode | URL                | Description                                                  |
-|---------|--------------------|--------------------------------------------------------------|
+| Méthode | URL                | Description                                                       |
+|---------|--------------------|-------------------------------------------------------------------|
 | POST    | `/api/auth/login`  | Se connecter, avec les champs de formulaire `email` et `password` |
-| POST    | `/api/auth/logout` | Se déconnecter                                               |
+| POST    | `/api/auth/logout` | Se déconnecter                                                    |
 
 Ces deux routes répondent `204` en cas de succès, et `/api/auth/login` répond `401` si les identifiants sont incorrects.
 
 Les requêtes `POST`, `PUT` et `DELETE` sont protégées contre le CSRF : le client doit lire le cookie `XSRF-TOKEN` et renvoyer sa valeur dans l'en-tête `X-XSRF-TOKEN`. Le jeton change après la connexion, il faut donc le relire avant chaque requête.
 
-| Code | Signification                                |
-|------|----------------------------------------------|
-| 401  | Pas connecté, ou identifiants incorrects     |
-| 403  | Accès refusé : rôle insuffisant ou jeton CSRF absent |
+| Code | Signification                                         |
+|------|-------------------------------------------------------|
+| 401  | Pas connecté, ou identifiants incorrects              |
+| 403  | Accès refusé : rôle insuffisant ou jeton CSRF absent  |
 
 ## Documentation de l'API
 
 Une fois l'application lancée, la documentation interactive (Swagger UI) est disponible ici :
-http://localhost:8080/swagger-ui.html
+<http://localhost:8080/swagger-ui.html>
 
 ### Routes publiques
 
@@ -118,34 +119,30 @@ Accessibles à toute personne connectée.
 
 Réservées au rôle `ADMIN`.
 
-| Méthode | URL                           | Description                                 |
-|---------|-------------------------------|---------------------------------------------|
-| GET     | `/api/admin/affiliates`       | Liste des affiliés avec toutes leurs données |
-| GET     | `/api/admin/affiliates/{id}`  | Détail complet d'un affilié                 |
-| POST    | `/api/admin/affiliates`       | Créer un affilié                            |
-| PUT     | `/api/admin/affiliates/{id}`  | Modifier un affilié                         |
-| DELETE  | `/api/admin/affiliates/{id}`  | Supprimer un affilié                        |
-| POST    | `/api/admin/events`           | Créer un événement                          |
-| PUT     | `/api/admin/events/{id}`      | Modifier un événement                       |
-| DELETE  | `/api/admin/events/{id}`      | Supprimer un événement                      |
-| GET     | `/api/admin/games`            | Liste des parties avec les données complètes |
-| GET     | `/api/admin/games/{id}`       | Détail complet d'une partie                 |
-| POST    | `/api/admin/games`            | Créer une partie                            |
-| PUT     | `/api/admin/games/{id}`       | Modifier une partie                         |
-| DELETE  | `/api/admin/games/{id}`       | Supprimer une partie                        |
-| POST    | `/api/admin/locations`        | Créer un lieu                               |
-| PUT     | `/api/admin/locations/{id}`   | Modifier un lieu                            |
-| DELETE  | `/api/admin/locations/{id}`   | Supprimer un lieu                           |
-| GET     | `/api/admin/roles`            | Liste des rôles                             |
-| GET     | `/api/admin/roles/{id}`       | Détail d'un rôle                            |
-| POST    | `/api/admin/roles`            | Créer un rôle                               |
-| PUT     | `/api/admin/roles/{id}`       | Modifier un rôle                            |
-| DELETE  | `/api/admin/roles/{id}`       | Supprimer un rôle                           |
-| GET     | `/api/admin/users`            | Liste des utilisateurs                      |
-| GET     | `/api/admin/users/{id}`       | Détail d'un utilisateur                     |
-| POST    | `/api/admin/users`            | Créer un utilisateur                        |
-| PUT     | `/api/admin/users/{id}`       | Modifier un utilisateur (sans son mot de passe) |
-| DELETE  | `/api/admin/users/{id}`       | Supprimer un utilisateur                    |
+| Méthode | URL                           | Description                                      |
+|---------|-------------------------------|---------------------------------------------     |
+| GET     | `/api/admin/affiliates`       | Liste des affiliés avec toutes leurs données     |
+| GET     | `/api/admin/affiliates/{id}`  | Détail complet d'un affilié                      |
+| POST    | `/api/admin/affiliates`       | Créer un affilié                                 |
+| PUT     | `/api/admin/affiliates/{id}`  | Modifier un affilié                              |
+| DELETE  | `/api/admin/affiliates/{id}`  | Supprimer un affilié                             |
+| POST    | `/api/admin/events`           | Créer un événement                               |
+| PUT     | `/api/admin/events/{id}`      | Modifier un événement                            |
+| DELETE  | `/api/admin/events/{id}`      | Supprimer un événement                           |
+| GET     | `/api/admin/games`            | Liste des parties avec les données complètes     |
+| GET     | `/api/admin/locations`        | Liste des lieux                                  |
+| GET     | `/api/admin/locations/{id}`   | Détail d'un lieu                                 |
+| DELETE  | `/api/admin/locations/{id}`   | Supprimer un lieu                                |
+| GET     | `/api/admin/roles`            | Liste des rôles                                  |
+| GET     | `/api/admin/roles/{id}`       | Détail d'un rôle                                 |
+| POST    | `/api/admin/roles`            | Créer un rôle                                    |
+| PUT     | `/api/admin/roles/{id}`       | Modifier un rôle                                 |
+| DELETE  | `/api/admin/roles/{id}`       | Supprimer un rôle                                |
+| GET     | `/api/admin/users`            | Liste des utilisateurs                           |
+| GET     | `/api/admin/users/{id}`       | Détail d'un utilisateur                          |
+| POST    | `/api/admin/users`            | Créer un utilisateur                             |
+| PUT     | `/api/admin/users/{id}`       | Modifier un utilisateur (sans son mot de passe)  |
+| DELETE  | `/api/admin/users/{id}`       | Supprimer un utilisateur                         |
 
 ## Tests
 
@@ -155,6 +152,7 @@ Pour lancer les tests unitaires et d'intégration dans l'environnement conteneur
 
 ## Structure du projet
 
+```text
 src/main/java/com/bcphoenix/
 ├── config/         # Configuration générale & Initialiseur d'admin)
 ├── controller/     # Points d'entrée HTTP (les URLs de l'API)
