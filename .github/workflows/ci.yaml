@@ -1,14 +1,26 @@
+
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    types: [opened, synchronize, reopened]
-    branches: [main]
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:
+      - main
 
 permissions:
   contents: read
+
+env:
+  MAX_PMD_VIOLATIONS: 5
+  EXPECTED_PMD_VIOLATIONS: 0
+  EXPECTED_COVERAGE: 0.90
+  MIN_COVERAGE: 0.85
 
 jobs:
   build:
@@ -53,12 +65,12 @@ jobs:
           DB_USERNAME: root
           DB_PASSWORD: rootpassword
         run: |
-          ./mvnw -B verify \
+          mvn -B verify \
             org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=PokaChoc_bcphoenix-api \
             -Dsonar.organization=pokachoc
 
-      # Extraction des résultats, même si Maven échoue.
+      # Extraction indépendante du résultat de Maven.
       - name: Extract quality metrics
         if: always()
         run: |
@@ -70,6 +82,7 @@ jobs:
           result = {
               "coverage_available": False,
               "coverage": 0,
+              "branches_available": False,
               "branches": 0,
               "pmd_available": False,
               "pmd_total": 0
@@ -79,40 +92,52 @@ jobs:
           jacoco = Path("target/site/jacoco/jacoco.xml")
 
           if jacoco.exists():
-              root = ET.parse(jacoco).getroot()
-              counters = {
-                  counter.attrib["type"]: counter.attrib
-                  for counter in root.findall("counter")
-              }
+              try:
+                  root = ET.parse(jacoco).getroot()
 
-              instruction = counters.get("INSTRUCTION")
-              branch = counters.get("BRANCH")
+                  counters = {
+                      counter.attrib["type"]: counter.attrib
+                      for counter in root.findall("counter")
+                  }
 
-              if instruction:
-                  missed = int(instruction["missed"])
-                  covered = int(instruction["covered"])
-                  total = missed + covered
+                  instruction = counters.get("INSTRUCTION")
+                  branch = counters.get("BRANCH")
 
-                  result["coverage"] = covered / total if total else 0
-                  result["coverage_available"] = True
+                  if instruction:
+                      missed = int(instruction["missed"])
+                      covered = int(instruction["covered"])
+                      total = missed + covered
 
-              if branch:
-                  missed = int(branch["missed"])
-                  covered = int(branch["covered"])
-                  total = missed + covered
+                      result["coverage"] = covered / total if total else 0
+                      result["coverage_available"] = True
 
-                  result["branches"] = covered / total if total else 0
+                  if branch:
+                      missed = int(branch["missed"])
+                      covered = int(branch["covered"])
+                      total = missed + covered
+
+                      result["branches"] = covered / total if total else 0
+                      result["branches_available"] = True
+
+              except (ET.ParseError, ValueError, KeyError) as error:
+                  print(f"Unable to parse JaCoCo report: {error}")
 
           # PMD
           pmd = Path("target/pmd.xml")
 
           if pmd.exists():
-              root = ET.parse(pmd).getroot()
-              result["pmd_total"] = sum(
-                  1 for element in root.iter()
-                  if element.tag.split("}")[-1] == "violation"
-              )
-              result["pmd_available"] = True
+              try:
+                  root = ET.parse(pmd).getroot()
+
+                  result["pmd_total"] = sum(
+                      1 for element in root.iter()
+                      if element.tag.split("}")[-1] == "violation"
+                  )
+
+                  result["pmd_available"] = True
+
+              except (ET.ParseError, ValueError) as error:
+                  print(f"Unable to parse PMD report: {error}")
 
           Path("quality-results.json").write_text(
               json.dumps(result, indent=2)
@@ -131,11 +156,17 @@ jobs:
           retention-days: 1
 
   quality-check:
-    name: Quality Check
     needs: build
+    name: Quality Check
     if: always()
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
     uses: ./.github/workflows/quality-check.yml
     with:
       build_result: ${{ needs.build.result }}
       min_coverage: 0.85
+      expected_coverage: 0.90
       max_pmd_violations: 5
+      expected_pmd_violations: 0
