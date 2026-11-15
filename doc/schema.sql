@@ -63,3 +63,24 @@ CREATE TABLE IF NOT EXISTS games (
     CONSTRAINT uq_games UNIQUE (event_id, affiliate_id, game_number),
     CONSTRAINT chk_games_score CHECK (score BETWEEN 0 AND 300)
 );
+
+-- Les images de l'application
+CREATE TABLE IF NOT EXISTS images (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    image_data   LONGBLOB NOT NULL,
+    content_type VARCHAR(50) NOT NULL,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Les sponsors du club
+CREATE TABLE IF NOT EXISTS sponsors (
+    id       INT AUTO_INCREMENT PRIMARY KEY,
+    name     VARCHAR(100) NOT NULL UNIQUE,
+    city     VARCHAR(100),
+    website  VARCHAR(255),
+    image_id INT UNIQUE,
+    CONSTRAINT fk_sponsors_image
+        FOREIGN KEY (image_id)
+        REFERENCES images (id)
+        ON DELETE SET NULL
+);
