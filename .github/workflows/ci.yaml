@@ -86,6 +86,8 @@ jobs:
           DATABASE_URL: jdbc:mysql://127.0.0.1:3306/bcphoenix
           DB_USERNAME: root
           DB_PASSWORD: rootpassword
+          ADMIN_EMAIL: admin@sample.com
+          ADMIN_PASSWORD: adminpassword
         run: |
           mvn -B verify \
             org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
