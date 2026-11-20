@@ -34,10 +34,19 @@ CREATE TABLE IF NOT EXISTS affiliates (
 
 -- Les bowlings où le club joue
 CREATE TABLE IF NOT EXISTS locations (
-    id      INT AUTO_INCREMENT PRIMARY KEY,
-    name    VARCHAR(100) NOT NULL UNIQUE,
-    city    VARCHAR(100),
-    address VARCHAR(255)
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    name            VARCHAR(100) NOT NULL UNIQUE,
+    city            VARCHAR(100),
+    address         VARCHAR(255),
+    image_url       VARCHAR(1000),
+    image_id        INT,
+    website_url     VARCHAR(1000),
+    CONSTRAINT fk_locations_image
+        FOREIGN KEY (image_id) REFERENCES images(id)
+        ON DELETE SET NULL,
+
+    CONSTRAINT chk_location_image
+        CHECK (image_url IS NULL OR image_id IS NULL)
 );
 
 -- Un entraînement / une compétition à une date et un lieu donnés

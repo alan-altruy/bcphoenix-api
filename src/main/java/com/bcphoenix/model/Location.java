@@ -19,6 +19,39 @@ public class Location {
     @Column(name = "address")
     private String address;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "image_id")
+    private Integer imageId;
+
+    @Column(name = "website_url", length = 1000)
+    private String websiteUrl;
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public Integer getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(Integer imageId) {
+        this.imageId = imageId;
+    }
+
+    public String getWebsiteUrl() {
+        return websiteUrl;
+    }
+
+    public void setWebsiteUrl(String websiteUrl) {
+        this.websiteUrl = websiteUrl;
+    }
+
     public String getName() {
         return name;
     }
