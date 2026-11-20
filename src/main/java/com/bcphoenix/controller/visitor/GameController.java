@@ -2,9 +2,11 @@ package com.bcphoenix.controller.visitor;
 
 import com.bcphoenix.dto.response.visitor.EventScoresResponse;
 import com.bcphoenix.dto.response.visitor.GameResponse;
+import com.bcphoenix.dto.response.visitor.SessionScoresResponse;
 import com.bcphoenix.model.EventType;
 import com.bcphoenix.model.Game;
 import com.bcphoenix.service.GameService;
+import com.bcphoenix.service.StatisticsService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,9 +17,11 @@ import java.util.List;
 @RequestMapping("/api/games")
 public class GameController {
     private final GameService gameService;
+    private final StatisticsService statisticsService;
 
-    public GameController(GameService gameService){
+    public GameController(GameService gameService, StatisticsService statisticsService) {
         this.gameService = gameService;
+        this.statisticsService = statisticsService;
     }
 
     @GetMapping
@@ -33,6 +37,16 @@ public class GameController {
     @GetMapping("/latest")
     public EventScoresResponse findLastGamesByEventType(@RequestParam EventType eventType){
         return EventScoresResponse.from(gameService.findLastGamesByEventType(eventType));
+    }
+
+    @GetMapping("/latest/thursday")
+    public SessionScoresResponse findLastThursdaySession() {
+        return statisticsService.getLastSessionStatistics(5);
+    }
+
+    @GetMapping("/latest/monday")
+    public SessionScoresResponse findLastMondaySession() {
+        return statisticsService.getLastSessionStatistics(2);
     }
 
     @GetMapping("/event/{eventId}")

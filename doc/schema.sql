@@ -84,3 +84,12 @@ CREATE TABLE IF NOT EXISTS sponsors (
         REFERENCES images (id)
         ON DELETE SET NULL
 );
+
+-- Les saisons du club
+CREATE TABLE IF NOT EXISTS seasons (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    name       VARCHAR(100) NOT NULL UNIQUE,
+    start_date DATE NOT NULL,
+    end_date   DATE NOT NULL,
+    CONSTRAINT chk_seasons_dates CHECK (end_date >= start_date)
+);

@@ -30,6 +30,11 @@ public class EventService {
     public Event findById(Integer id){
         return eventRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event introuvable"));
     }
+
+    public Event findLastEvent(){
+        return eventRepository.findAll().stream().max((e1, e2) -> e1.getEventDate().compareTo(e2.getEventDate())).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aucun évènement trouvé"));
+    }
+
     public Event create(EventRequest request){
         Location location = locationService.findById(request.locationId());
         Event event = new Event();

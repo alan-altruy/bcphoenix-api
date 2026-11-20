@@ -26,4 +26,9 @@ public class EventController {
         return EventResponse.from(eventService.findById(id));
     }
 
+    @GetMapping ("/latest")
+    public List<EventResponse> findLastEvent(){
+        Event event = eventService.findLastEvent();
+        return List.of(EventResponse.from(event));
+    }
 }
