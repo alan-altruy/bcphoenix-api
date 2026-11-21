@@ -21,7 +21,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,
                                 "/api/affiliates/**", "/api/events/**",
-                                "/api/games/**", "/api/locations/**", "/api/sponsors/**", "/api/images/**", "/actuator/health", "/actuator/health/**").permitAll()
+                                "/api/games/**", "/api/locations/**", "/api/sponsors/**", "/api/images/**", "/actuator/health", "/actuator/health/**", "/api/news","/api/news/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/account/**").authenticated()

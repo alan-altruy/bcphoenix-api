@@ -12,6 +12,14 @@ CREATE TABLE IF NOT EXISTS roles (
 -- Insertion du rôle ADMIN avec l'ID 2 (évite les doublons si le script est rejoué)
 INSERT IGNORE INTO roles (id, name) VALUES (2, 'ADMIN');
 
+-- Les images de l'application
+CREATE TABLE IF NOT EXISTS images (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    image_data   LONGBLOB NOT NULL,
+    content_type VARCHAR(50) NOT NULL,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS users (
     id         INT AUTO_INCREMENT PRIMARY KEY,
     last_name  VARCHAR(100) NOT NULL,
@@ -34,19 +42,18 @@ CREATE TABLE IF NOT EXISTS affiliates (
 
 -- Les bowlings où le club joue
 CREATE TABLE IF NOT EXISTS locations (
-    id              INT AUTO_INCREMENT PRIMARY KEY,
-    name            VARCHAR(100) NOT NULL UNIQUE,
-    city            VARCHAR(100),
-    address         VARCHAR(255),
-    image_url       VARCHAR(1000),
-    image_id        INT,
-    website_url     VARCHAR(1000),
-    CONSTRAINT fk_locations_image
-        FOREIGN KEY (image_id) REFERENCES images(id)
-        ON DELETE SET NULL,
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    name        VARCHAR(100) NOT NULL UNIQUE,
+    city        VARCHAR(100),
+    address     VARCHAR(255),
+    image_url   VARCHAR(1000),
+    image_id    INT,
+    website_url VARCHAR(1000),
 
-    CONSTRAINT chk_location_image
-        CHECK (image_url IS NULL OR image_id IS NULL)
+    CONSTRAINT fk_locations_image
+        FOREIGN KEY (image_id)
+        REFERENCES images(id)
+        ON DELETE SET NULL
 );
 
 -- Un entraînement / une compétition à une date et un lieu donnés
@@ -73,14 +80,6 @@ CREATE TABLE IF NOT EXISTS games (
     CONSTRAINT chk_games_score CHECK (score BETWEEN 0 AND 300)
 );
 
--- Les images de l'application
-CREATE TABLE IF NOT EXISTS images (
-    id           INT AUTO_INCREMENT PRIMARY KEY,
-    image_data   LONGBLOB NOT NULL,
-    content_type VARCHAR(50) NOT NULL,
-    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Les sponsors du club
 CREATE TABLE IF NOT EXISTS sponsors (
     id       INT AUTO_INCREMENT PRIMARY KEY,
@@ -101,4 +100,19 @@ CREATE TABLE IF NOT EXISTS seasons (
     start_date DATE NOT NULL,
     end_date   DATE NOT NULL,
     CONSTRAINT chk_seasons_dates CHECK (end_date >= start_date)
+);
+
+-- Les news du club
+CREATE TABLE news (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    slug VARCHAR(220) NOT NULL UNIQUE,
+    summary VARCHAR(500) NOT NULL,
+    content LONGTEXT NOT NULL,
+    cover_image VARCHAR(500),
+    published BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    published_at DATETIME NULL
 );
